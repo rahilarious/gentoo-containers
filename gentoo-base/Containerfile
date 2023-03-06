@@ -1,0 +1,74 @@
+    # --mount=type=bind,src=/home/chad/.local/share/containers/storage/volumes/gentoo_repo/_data,dst=/var/db/repos/gentoo,rw \
+    # --mount=type=bind,src=/home/chad/.local/share/containers/storage/volumes/gentoo_distfiles/_data,dst=/var/cache/distfiles,rw \
+    # --mount=type=bind,src=/home/chad/.local/share/containers/storage/volumes/gentoo_binpkgs/_data,dst=/var/cache/binpkgs,rw \
+    # --mount=type=tmpfs,tmpfs-size=4G,dst=/tmp \
+    # --mount=type=tmpfs,tmpfs-size=4G,dst=/var/tmp \
+
+
+FROM localhost/gentoo/stage3:nomultilib-systemd-merged
+ARG PORTAGE_MARCH='x86-64-v3'
+ARG PORTAGE_GOAMD64='v3'
+ARG PORTAGE_FLAGS='aes avx avx2 f16c fma3 mmx mmxext pclmul popcnt rdrand sse sse2 sse3 sse4_1 sse4_2 ssse3'
+
+RUN \
+    --mount=type=secret,id=ansible-homelab-vaultpass \
+    \
+    echo '[binpkgserver]' >> /etc/portage/binrepos.conf && \
+    echo 'priority = 100' >> /etc/portage/binrepos.conf && \
+    echo 'sync-uri = http://alienware.hl.rahil.website/binpkgs' >> /etc/portage/binrepos.conf && \
+    \
+    FEATURES='-pid-sandbox -network-sandbox -ipc-sandbox binpkg-ignore-signature' ACCEPT_KEYWORDS='~amd64' CPU_FLAGS_X86="aes avx avx2 f16c fma3 mmx mmxext pclmul popcnt rdrand sse sse2 sse3 sse4_1 sse4_2 ssse3" USE='lto jit -iptables nftables pgo -smartcard tofu graphite' emerge -vbgk --quiet-build --with-bdeps=y dev-vcs/git 2>/dev/null && \
+    FEATURES='-pid-sandbox -network-sandbox -ipc-sandbox binpkg-ignore-signature' ACCEPT_KEYWORDS='~amd64' CPU_FLAGS_X86="aes avx avx2 f16c fma3 mmx mmxext pclmul popcnt rdrand sse sse2 sse3 sse4_1 sse4_2 ssse3" USE='lto jit -iptables nftables pgo -smartcard tofu graphite' emerge -vbgk --quiet-build --with-bdeps=n -1 app-admin/ansible-core 2>/dev/null && \
+    \
+    mkdir -v /tmp/ansible-homelab && \
+    git clone https://gitlab.com/rahilarious/ansible-homelab.git /tmp/ansible-homelab && \
+    cat /run/secrets/ansible-homelab-vaultpass > /tmp/ansible-homelab/.vaultpass && \
+    echo '############         Dirty trick to force it as container            #########' && \
+    sed -i -e '/virtualization_type/d' /tmp/ansible-homelab/playbooks/set_facts.yml && \
+    cd /tmp/ansible-homelab && \
+    echo '############         Installing ansible requirements            #########' && \
+    ansible-galaxy install -r requirements.yml && \
+    \
+    echo 'gentoo_base_packages:'			>> /tmp/ansible-homelab/host_vars/currenthost.yml && \
+    echo '  - app-editors/mg' 				>> /tmp/ansible-homelab/host_vars/currenthost.yml && \
+    echo '  - app-misc/tmux'			        >> /tmp/ansible-homelab/host_vars/currenthost.yml && \
+    echo '  - app-shells/bash-completion' 		>> /tmp/ansible-homelab/host_vars/currenthost.yml && \
+    echo '  - app-text/tree' 				>> /tmp/ansible-homelab/host_vars/currenthost.yml && \
+    echo '  - sys-apps/lsb-release' 			>> /tmp/ansible-homelab/host_vars/currenthost.yml && \
+    echo '  - app-shells/tmux-bash-completion' 		>> /tmp/ansible-homelab/host_vars/currenthost.yml && \
+    echo '  - sys-process/htop'				>> /tmp/ansible-homelab/host_vars/currenthost.yml && \
+    echo 'portage_features:' 				>> /tmp/ansible-homelab/host_vars/currenthost.yml && \
+    echo '  - -ipc-sandbox' 				>> /tmp/ansible-homelab/host_vars/currenthost.yml && \
+    echo '  - -network-sandbox' 			>> /tmp/ansible-homelab/host_vars/currenthost.yml && \
+    echo '  - -pid-sandbox' 				>> /tmp/ansible-homelab/host_vars/currenthost.yml && \
+    echo '  - binpkg-ignore-signature' 			>> /tmp/ansible-homelab/host_vars/currenthost.yml && \
+    echo "portage_march: ${PORTAGE_MARCH}" 		>> /tmp/ansible-homelab/host_vars/currenthost.yml && \
+    echo "portage_goamd64: ${PORTAGE_GOAMD64}" 		>> /tmp/ansible-homelab/host_vars/currenthost.yml && \
+    echo "portage_cpu_flags: '${PORTAGE_FLAGS}'" 	>> /tmp/ansible-homelab/host_vars/currenthost.yml && \
+    \
+    ansible-playbook -l currenthost local.yml && \
+    emerge --sync 2>/dev/null && \
+    emerge -q1ugkb --with-bdeps=y sys-apps/portage 2>/dev/null && \
+    echo '############         Rebuilding whole stage3            #########' && \
+    emerge -vgkb --quiet-build --with-bdeps=y -e @world 2>/dev/null && \
+    \
+    echo '############         Post installation configurations            #########' && \
+    echo '############         setting mg as default editor            #########' && \
+    eselect editor set mg && \
+    echo '############         Cleaning up            #########' && \
+    emerge -c 2>/dev/null && \
+    rm -rf /root/.ansible /tmp/ansible* /var/tmp/portage && \
+    rm /var/log/emerge.log /var/log/portage/elog/summary.log && \
+    truncate -s0 /var/log/emerge* && \
+    echo '###########       CONGRATULATIONS !!! EVERYTHING SUCCESSFUL      #######'
+
+
+
+LABEL \
+    org.opencontainers.image.description='Gentoo with ~amd64, -march=x86-64-v3, nomultilib-systemd-merged-usr profile and few added utilities' \
+    org.opencontainers.image.title='Gentoo for GenZ' \
+    org.opencontainers.image.source='https://gitlab.com/rahilarious/gentoo-docker' \
+    org.opencontainers.image.url='https://gitlab.com/rahilarious/gentoo-docker' \
+    org.opencontainers.image.authors='Rahil Bhimjiani (rahil3108@gmail.com)' \
+
+CMD ["/usr/bin/bash"]
