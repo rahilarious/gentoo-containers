@@ -7,7 +7,7 @@ time { cd ${HOME}/containers/gentoo/gentoo-base && \
 	   --build-arg MICROARCH_LEVEL=v2 \
 	   --build-arg PORTAGE_FLAGS='mmx mmxext popcnt sse sse2 sse3 sse4_1 sse4_2 ssse3' \
 	   -f ${HOME}/containers/gentoo/gentoo-base/Containerfile \
-	   -v ${HOME}/.local/share/containers/storage/volumes/gentoo_repo/_data:/var/db/repos/gentoo \
+	   -v ${HOME}/.local/share/containers/storage/volumes/gentoo_repo/_data:/var/db/repos \
 	   -v ${HOME}/.local/share/containers/storage/volumes/gentoo_distfiles/_data:/var/cache/distfiles \
 	   -v ${HOME}/.local/share/containers/storage/volumes/gentoo_binpkgs/_data:/var/cache/binpkgs \
 	   --secret=id=ansible-homelab-vaultpass,src=${HOME}/containers/gentoo/gentoo-base/vaultpass \
