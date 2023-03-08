@@ -1,13 +1,6 @@
-    # --mount=type=bind,src=/home/chad/.local/share/containers/storage/volumes/gentoo_repo/_data,dst=/var/db/repos/gentoo,rw \
-    # --mount=type=bind,src=/home/chad/.local/share/containers/storage/volumes/gentoo_distfiles/_data,dst=/var/cache/distfiles,rw \
-    # --mount=type=bind,src=/home/chad/.local/share/containers/storage/volumes/gentoo_binpkgs/_data,dst=/var/cache/binpkgs,rw \
-    # --mount=type=tmpfs,tmpfs-size=4G,dst=/tmp \
-    # --mount=type=tmpfs,tmpfs-size=4G,dst=/var/tmp \
-
-
 FROM localhost/gentoo/stage3:nomultilib-systemd-merged
-ARG MICROARCH_LEVEL='v3'
-ARG PORTAGE_FLAGS='avx avx2 f16c fma3 mmx mmxext popcnt sse sse2 sse3 sse4_1 sse4_2 ssse3'
+ARG MICROARCH_LEVEL
+ARG PORTAGE_FLAGS
 
 RUN \
     --mount=type=secret,id=ansible-homelab-vaultpass \
@@ -16,8 +9,8 @@ RUN \
     echo 'priority = 100' >> /etc/portage/binrepos.conf && \
     echo 'sync-uri = http://alienware.hl.rahil.website/binpkgs' >> /etc/portage/binrepos.conf && \
     \
-    FEATURES='-pid-sandbox -network-sandbox -ipc-sandbox binpkg-ignore-signature' ACCEPT_KEYWORDS='~amd64' CPU_FLAGS_X86="aes avx avx2 f16c fma3 mmx mmxext pclmul popcnt rdrand sse sse2 sse3 sse4_1 sse4_2 ssse3" USE='lto jit -iptables nftables pgo -smartcard tofu graphite' emerge -vbgk --quiet-build --with-bdeps=y dev-vcs/git 2>/dev/null && \
-    FEATURES='-pid-sandbox -network-sandbox -ipc-sandbox binpkg-ignore-signature' ACCEPT_KEYWORDS='~amd64' CPU_FLAGS_X86="aes avx avx2 f16c fma3 mmx mmxext pclmul popcnt rdrand sse sse2 sse3 sse4_1 sse4_2 ssse3" USE='lto jit -iptables nftables pgo -smartcard tofu graphite' emerge -vbgk --quiet-build --with-bdeps=n -1 app-admin/ansible-core 2>/dev/null && \
+    FEATURES='-pid-sandbox -network-sandbox -ipc-sandbox binpkg-ignore-signature' ACCEPT_KEYWORDS='~amd64' CPU_FLAGS_X86="${PORTAGE_FLAGS}" USE='lto jit -iptables nftables pgo -smartcard tofu graphite' emerge -vbgk --quiet-build --with-bdeps=y dev-vcs/git 2>/dev/null && \
+    FEATURES='-pid-sandbox -network-sandbox -ipc-sandbox binpkg-ignore-signature' ACCEPT_KEYWORDS='~amd64' CPU_FLAGS_X86="${PORTAGE_FLAGS}" USE='lto jit -iptables nftables pgo -smartcard tofu graphite' emerge -vbgk --quiet-build --with-bdeps=n -1 app-admin/ansible-core 2>/dev/null && \
     \
     mkdir -v /tmp/ansible-homelab && \
     git clone https://gitlab.com/rahilarious/ansible-homelab.git /tmp/ansible-homelab && \
@@ -41,6 +34,7 @@ RUN \
     echo '  - -network-sandbox' 			>> /tmp/ansible-homelab/host_vars/currenthost.yml && \
     echo '  - -pid-sandbox' 				>> /tmp/ansible-homelab/host_vars/currenthost.yml && \
     echo '  - binpkg-ignore-signature' 			>> /tmp/ansible-homelab/host_vars/currenthost.yml && \
+    echo 'portage_local_mirror: ""'			>> /tmp/ansible-homelab/host_vars/currenthost.yml && \
     echo "portage_march: x86-64-${MICROARCH_LEVEL}"	>> /tmp/ansible-homelab/host_vars/currenthost.yml && \
     echo "portage_goamd64: ${MICROARCH_LEVEL}" 		>> /tmp/ansible-homelab/host_vars/currenthost.yml && \
     echo "portage_cpu_flags: '${PORTAGE_FLAGS}'" 	>> /tmp/ansible-homelab/host_vars/currenthost.yml && \
@@ -58,7 +52,7 @@ RUN \
     emerge -c 2>/dev/null && \
     rm -rf /root/.ansible /tmp/ansible* /var/tmp/portage && \
     rm /var/log/emerge.log /var/log/portage/elog/summary.log && \
-    truncate -s0 /var/log/emerge* && \
+    truncate -s0 /var/log/emerge* /etc/portage/binrepos.conf && \
     echo '###########       CONGRATULATIONS !!! EVERYTHING SUCCESSFUL      #######'
 
 
@@ -66,8 +60,8 @@ RUN \
 LABEL \
     org.opencontainers.image.description="Gentoo with ~amd64, -march=x86-64-${MICROARCH_LEVEL}, nomultilib-systemd-merged-usr profile and few added utilities" \
     org.opencontainers.image.title='Gentoo for GenZ' \
-    org.opencontainers.image.source='https://gitlab.com/rahilarious/gentoo-docker' \
-    org.opencontainers.image.url='https://gitlab.com/rahilarious/gentoo-docker' \
+    org.opencontainers.image.source='https://github.com/rahilarious/gentoo-containers' \
+    org.opencontainers.image.url='https://github.com/rahilarious/gentoo-containers' \
     org.opencontainers.image.authors='Rahil Bhimjiani (rahil3108@gmail.com)' \
 
 CMD ["/usr/bin/bash"]
