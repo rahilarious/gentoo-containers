@@ -1,14 +1,56 @@
 FROM localhost/gentoo/stage3:nomultilib-systemd-merged
 ARG MICROARCH_LEVEL
 ARG PORTAGE_FLAGS
+ARG DISTCC_SERVERS='localhost'
 
 RUN \
     --mount=type=secret,id=ansible-homelab-vaultpass \
     --mount=type=tmpfs,tmpfs-size=100%,dst=/tmp \
     --mount=type=tmpfs,tmpfs-size=100%,dst=/var/tmp \
     \
-    FEATURES='-pid-sandbox -network-sandbox -ipc-sandbox binpkg-ignore-signature' ACCEPT_KEYWORDS='~amd64' CPU_FLAGS_X86="${PORTAGE_FLAGS}" USE='lto jit -iptables nftables pgo -smartcard tofu graphite' emerge -vgk --quiet-build --with-bdeps=y dev-vcs/git 2>/dev/null && \
-    FEATURES='-pid-sandbox -network-sandbox -ipc-sandbox binpkg-ignore-signature' ACCEPT_KEYWORDS='~amd64' CPU_FLAGS_X86="${PORTAGE_FLAGS}" USE='lto jit -iptables nftables pgo -smartcard tofu graphite' emerge -vgk --quiet-build --with-bdeps=n -1 app-admin/ansible-core 2>/dev/null && \
+    echo '#####        Configuring make.conf      ######' && \
+    cp /etc/portage/make.conf /etc/portage/original-make.conf && \
+    sed -i "s|-O2|-march=x86-64-${MICROARCH_LEVEL} -O2|g" /etc/portage/make.conf && \
+    echo "GOAMD64=${MICROARCH_LEVEL}" >> /etc/portage/make.conf && \
+    echo "RUSTFLAGS='-C target-cpu=x86-64-${MICROARCH_LEVEL} -C strip=symbols -C opt-level=2'" >> /etc/portage/make.conf && \
+    echo "FEATURES='-pid-sandbox -network-sandbox -ipc-sandbox binpkg-ignore-signature'" >> /etc/portage/make.conf && \
+    echo 'ACCEPT_KEYWORDS="~${ARCH}"' >> /etc/portage/make.conf && \
+    echo "CPU_FLAGS_X86='${PORTAGE_FLAGS}'" >> /etc/portage/make.conf && \
+    echo "USE='lto jit -iptables nftables pgo -smartcard tofu graphite'" >> /etc/portage/make.conf && \
+    echo 'BINPKG_FORMAT="gpkg"' >> /etc/portage/make.conf && \
+    echo "MAKEOPTS=\"-j$(nproc --ignore=1) -l$(nproc)\"" >> /etc/portage/make.conf && \
+    \
+    if [ -d /var/db/repos/gentoo/.git ]; then \
+      echo "#####    Found git Gentoo repo     #####" && \
+      emerge -vgkbn --quiet-build --with-bdeps=y dev-vcs/git 2>/dev/null && \
+      echo '[gentoo]' >> /etc/portage/repos.conf && \
+      echo 'location = /var/db/repos/gentoo' >> /etc/portage/repos.conf && \
+      echo 'sync-type = git' >> /etc/portage/repos.conf && \
+      echo 'sync-uri = https://github.com/gentoo-mirror/gentoo.git' >> /etc/portage/repos.conf && \
+      echo 'clone-depth = 1' >> /etc/portage/repos.conf && \
+      echo 'sync-depth = 1' >> /etc/portage/repos.conf && \
+      echo 'autosync = yes' >> /etc/portage/repos.conf; \
+    fi && \
+    \
+    echo '######       Syncing gentoo repo       #######' && \
+    emerge --sync 2>/dev/null && \
+    \
+    if [ -f /etc/portage/repos.conf ]; then \
+      echo '#####        Removing repos.conf      #####' && \
+      rm /etc/portage/repos.conf; \
+    fi && \
+    \
+    echo '#######      Update portage,gcc,binutils,linux-headers if necessary       ######' && \
+    emerge -vgkbu1 --quiet-build --with-bdeps=y sys-apps/portage sys-devel/gcc sys-devel/binutils sys-kernel/linux-headers 2>/dev/null && \
+    emerge -c 2>/dev/null && \
+    \
+    emerge -vgkbn --quiet-build --with-bdeps=y sys-devel/distcc && \
+    echo '######         Enabling distcc        ########' && \
+    echo 'FEATURES="${FEATURES} distcc"' >> /etc/portage/make.conf && \
+    distcc-config --set-hosts "'${DISTCC_SERVERS}'" && \
+    \
+    emerge -vgkbn --quiet-build --with-bdeps=y dev-vcs/git 2>/dev/null && \
+    emerge -vgkbn1 --quiet-build --with-bdeps=n -X 'dev-lang/rust' app-admin/ansible-core 2>/dev/null && \
     \
     mkdir -v /tmp/ansible-homelab && \
     git clone https://gitlab.com/rahilarious/ansible-homelab.git /tmp/ansible-homelab && \
@@ -38,19 +80,33 @@ RUN \
     echo "portage_cpu_flags: '${PORTAGE_FLAGS}'" 	>> /tmp/ansible-homelab/host_vars/currenthost.yml && \
     \
     ansible-playbook -l currenthost local.yml && \
-    emerge --sync 2>/dev/null && \
-    emerge -q1ugkb --with-bdeps=y sys-apps/portage 2>/dev/null && \
+    \
+    mv /etc/portage/default-make.conf /etc/portage/builder-make.conf && \
+    mv /etc/portage/original-make.conf /etc/portage/default-make.conf && \
+    if [ ! -d /var/db/repos/gentoo/.git ]; then \
+      echo '#####        Found rsynced Gentoo repo      #####' && \
+      echo '####       Switching to git Gentoo repo      #####' && \
+      rm -rf /var/db/repos/gentoo && \
+      emerge --sync; \
+    fi && \
+    \
+    echo '############         Cleanup orphan packages            #########' && \
+    emerge -c 2>/dev/null && \
+    \
     echo '############         Rebuilding whole stage3            #########' && \
     emerge -vgkb --quiet-build --with-bdeps=y -e @world 2>/dev/null && \
     \
     echo '############         Post installation configurations            #########' && \
+    \
     echo '############         setting mg as default editor            #########' && \
     eselect editor set mg && \
+    \
     echo '############         Cleaning up            #########' && \
-    emerge -c 2>/dev/null && \
+    distcc-config --set-hosts "localhost" && \
     rm -rf /root/.ansible /tmp/ansible* /var/tmp/portage && \
     rm /var/log/emerge.log /var/log/portage/elog/summary.log && \
     truncate -s0 /var/log/emerge* /etc/portage/binrepos.conf && \
+    \
     echo '###########       CONGRATULATIONS !!! EVERYTHING SUCCESSFUL      #######'
 
 
@@ -60,6 +116,6 @@ LABEL \
     org.opencontainers.image.title='Gentoo for GenZ' \
     org.opencontainers.image.source='https://github.com/rahilarious/gentoo-containers' \
     org.opencontainers.image.url='https://github.com/rahilarious/gentoo-containers' \
-    org.opencontainers.image.authors='Rahil Bhimjiani (rahil3108@gmail.com)' \
+    org.opencontainers.image.authors='Rahil Bhimjiani (rahil3108@gmail.com)'
 
 CMD ["/usr/bin/bash"]
