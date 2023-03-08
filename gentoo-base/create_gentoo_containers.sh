@@ -9,6 +9,6 @@ time { cd ${HOME}/containers/gentoo/gentoo-base && \
 	   -f ${HOME}/containers/gentoo/gentoo-base/Containerfile \
 	   -v ${HOME}/.local/share/containers/storage/volumes/gentoo_repo/_data:/var/db/repos \
 	   -v ${HOME}/.local/share/containers/storage/volumes/gentoo_distfiles/_data:/var/cache/distfiles \
-	   -v ${HOME}/.local/share/containers/storage/volumes/gentoo_binpkgs/_data:/var/cache/binpkgs \
+	   -v ${HOME}/.local/share/containers/storage/volumes/gentoo_binpkgs_v2/_data:/var/cache/binpkgs \
 	   --secret=id=ansible-homelab-vaultpass,src=${HOME}/containers/gentoo/gentoo-base/vaultpass \
        ; }
