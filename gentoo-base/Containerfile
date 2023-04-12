@@ -126,7 +126,7 @@ RUN \
     echo '############         Cleaning up            #########' && \
     emerge -c 2>/dev/null && \
     distcc-config --set-hosts "localhost" && \
-    sed -e "s|${LOCAL_MIRROR}||g" /etc/portage/make.conf/mirrors && \
+    sed -i -e "s|${LOCAL_MIRROR}||g" /etc/portage/make.conf/mirrors && \
     rm -rf /root/.ansible /tmp/ansible* /var/tmp/portage && \
     rm /var/log/emerge.log /var/log/portage/elog/summary.log && \
     truncate -s0 /var/log/emerge* /etc/portage/binrepos.conf && \
