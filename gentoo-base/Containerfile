@@ -1,6 +1,11 @@
 FROM localhost/gentoo/stage3:nomultilib-systemd-merged
+
+ARG LOCAL_MIRROR
+ARG PORTAGE_FEATURES='-pid-sandbox -network-sandbox -ipc-sandbox binpkg-ignore-signature'
+ARG ANSIBLE_REPO
+ARG SUBSTRACT_NO_OF_CPU_BY=1
 ARG MICROARCH_LEVEL
-ARG PORTAGE_FLAGS
+ARG PORTAGE_CPU_FLAGS
 ARG DISTCC_SERVERS='localhost'
 
 RUN \
@@ -13,12 +18,12 @@ RUN \
     sed -i "s|-O2|-march=x86-64-${MICROARCH_LEVEL} -O2|g" /etc/portage/make.conf && \
     echo "GOAMD64=${MICROARCH_LEVEL}" >> /etc/portage/make.conf && \
     echo "RUSTFLAGS='-C target-cpu=x86-64-${MICROARCH_LEVEL} -C strip=symbols -C opt-level=2'" >> /etc/portage/make.conf && \
-    echo "FEATURES='-pid-sandbox -network-sandbox -ipc-sandbox binpkg-ignore-signature'" >> /etc/portage/make.conf && \
+    echo "FEATURES='${PORTAGE_FEATURES}'" >> /etc/portage/make.conf && \
     echo 'ACCEPT_KEYWORDS="~${ARCH}"' >> /etc/portage/make.conf && \
-    echo "CPU_FLAGS_X86='${PORTAGE_FLAGS}'" >> /etc/portage/make.conf && \
+    echo "CPU_FLAGS_X86='${PORTAGE_CPU_FLAGS}'" >> /etc/portage/make.conf && \
     echo "USE='lto jit -iptables nftables pgo -smartcard tofu graphite'" >> /etc/portage/make.conf && \
     echo 'BINPKG_FORMAT="gpkg"' >> /etc/portage/make.conf && \
-    echo "MAKEOPTS=\"-j$(nproc --ignore=1) -l$(nproc)\"" >> /etc/portage/make.conf && \
+    echo "MAKEOPTS=\"-j$(nproc --ignore=${SUBSTRACT_NO_OF_CPU_BY}) -l$(nproc)\"" >> /etc/portage/make.conf && \
     \
     if [ -d /var/db/repos/gentoo/.git ]; then \
       echo "#####    Found git Gentoo repo     #####" && \
@@ -41,25 +46,30 @@ RUN \
     fi && \
     \
     echo '#######      Update portage,gcc,binutils,linux-headers if necessary       ######' && \
-    emerge -vgkbu1 --quiet-build --with-bdeps=y sys-apps/portage sys-devel/gcc sys-devel/binutils sys-kernel/linux-headers 2>/dev/null && \
+    emerge -v --quiet-build -gkb1u --with-bdeps=y sys-apps/portage && \
+    emerge -vgkbu1 --quiet-build --with-bdeps=y sys-devel/gcc sys-devel/binutils sys-kernel/linux-headers 2>/dev/null && \
     emerge -c 2>/dev/null && \
     \
     emerge -vgkbn --quiet-build --with-bdeps=y sys-devel/distcc && \
     echo '######         Enabling distcc        ########' && \
     echo 'FEATURES="${FEATURES} distcc"' >> /etc/portage/make.conf && \
+    export PATH="/usr/lib/distcc/bin:${PATH}" && \
+    echo "#########     New PATH env : ${PATH}     ######" && \
     distcc-config --set-hosts "'${DISTCC_SERVERS}'" && \
+    echo '########    Distcc servers are set as follows      #######' && \
+    distcc-config --get-hosts && \
     \
     emerge -vgkbn --quiet-build --with-bdeps=y dev-vcs/git 2>/dev/null && \
     emerge -vgkbn1 --quiet-build --with-bdeps=n -X 'dev-lang/rust' app-admin/ansible-core 2>/dev/null && \
     \
     mkdir -v /tmp/ansible-homelab && \
-    git clone https://gitlab.com/rahilarious/ansible-homelab.git /tmp/ansible-homelab && \
+    git clone "${ANSIBLE_REPO}" /tmp/ansible-homelab && \
     cat /run/secrets/ansible-homelab-vaultpass > /tmp/ansible-homelab/.vaultpass && \
+    echo '############         Installing ansible requirements            #########' && \
+    cd /tmp/ansible-homelab && \
+    ansible-galaxy install -r requirements.yml && \
     echo '############         Dirty trick to force it as container            #########' && \
     sed -i -e '/virtualization_type/d' /tmp/ansible-homelab/playbooks/set_facts.yml && \
-    cd /tmp/ansible-homelab && \
-    echo '############         Installing ansible requirements            #########' && \
-    ansible-galaxy install -r requirements.yml && \
     \
     echo 'gentoo_base_packages:'			>> /tmp/ansible-homelab/host_vars/currenthost.yml && \
     echo '  - app-editors/mg' 				>> /tmp/ansible-homelab/host_vars/currenthost.yml && \
@@ -70,14 +80,11 @@ RUN \
     echo '  - app-shells/tmux-bash-completion' 		>> /tmp/ansible-homelab/host_vars/currenthost.yml && \
     echo '  - sys-process/htop'				>> /tmp/ansible-homelab/host_vars/currenthost.yml && \
     echo 'portage_features:' 				>> /tmp/ansible-homelab/host_vars/currenthost.yml && \
-    echo '  - -ipc-sandbox' 				>> /tmp/ansible-homelab/host_vars/currenthost.yml && \
-    echo '  - -network-sandbox' 			>> /tmp/ansible-homelab/host_vars/currenthost.yml && \
-    echo '  - -pid-sandbox' 				>> /tmp/ansible-homelab/host_vars/currenthost.yml && \
-    echo '  - binpkg-ignore-signature' 			>> /tmp/ansible-homelab/host_vars/currenthost.yml && \
-    echo 'portage_local_mirror: ""'			>> /tmp/ansible-homelab/host_vars/currenthost.yml && \
+    echo "  - '${PORTAGE_FEATURES}'"			>> /tmp/ansible-homelab/host_vars/currenthost.yml && \
+    echo "portage_local_mirror: '${LOCAL_MIRROR}'"	>> /tmp/ansible-homelab/host_vars/currenthost.yml && \
     echo "portage_march: x86-64-${MICROARCH_LEVEL}"	>> /tmp/ansible-homelab/host_vars/currenthost.yml && \
     echo "portage_goamd64: ${MICROARCH_LEVEL}" 		>> /tmp/ansible-homelab/host_vars/currenthost.yml && \
-    echo "portage_cpu_flags: '${PORTAGE_FLAGS}'" 	>> /tmp/ansible-homelab/host_vars/currenthost.yml && \
+    echo "portage_cpu_flags: '${PORTAGE_CPU_FLAGS}'" 	>> /tmp/ansible-homelab/host_vars/currenthost.yml && \
     \
     ansible-playbook -l currenthost local.yml && \
     \
@@ -102,7 +109,9 @@ RUN \
     eselect editor set mg && \
     \
     echo '############         Cleaning up            #########' && \
+    emerge -c 2>/dev/null && \
     distcc-config --set-hosts "localhost" && \
+    sed -e "s|${LOCAL_MIRROR}||g" /etc/portage/make.conf/mirrors && \
     rm -rf /root/.ansible /tmp/ansible* /var/tmp/portage && \
     rm /var/log/emerge.log /var/log/portage/elog/summary.log && \
     truncate -s0 /var/log/emerge* /etc/portage/binrepos.conf && \
