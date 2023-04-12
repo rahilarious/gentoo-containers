@@ -75,13 +75,6 @@ RUN \
     distcc-config --get-hosts && \
     \
     emerge -vgkbn --quiet-build --with-bdeps=y dev-vcs/git 2>/dev/null && \
-    if [ ! -d /var/db/repos/gentoo/.git ]; then \
-      echo '#####        Found rsynced Gentoo repo      #####' && \
-      echo '####       Switching to git Gentoo repo      #####' && \
-      rm -rf /var/db/repos/gentoo && \
-      emerge --sync; \
-    fi && \
-    \
     emerge -vgkbn1 --quiet-build --with-bdeps=n -X 'dev-lang/rust' app-admin/ansible-core 2>/dev/null && \
     \
     mkdir -v /tmp/ansible-homelab && \
@@ -113,6 +106,13 @@ RUN \
     \
     mv /etc/portage/default-make.conf /etc/portage/builder-make.conf && \
     mv /etc/portage/original-make.conf /etc/portage/default-make.conf && \
+    if [ ! -d /var/db/repos/gentoo/.git ]; then \
+      echo '#####        Found rsynced Gentoo repo      #####' && \
+      echo '####       Switching to git Gentoo repo      #####' && \
+      rm -rf /var/db/repos/gentoo && \
+      emerge --sync; \
+    fi && \
+    \
     echo '############         Cleanup orphan packages            #########' && \
     emerge -c 2>/dev/null && \
     \
