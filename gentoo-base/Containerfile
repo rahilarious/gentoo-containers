@@ -21,6 +21,7 @@ RUN \
     echo "RUSTFLAGS='-C target-cpu=x86-64-${MICROARCH_LEVEL} -C strip=symbols -C opt-level=2'" >> /etc/portage/make.conf && \
     echo "FEATURES='${PORTAGE_FEATURES}'" >> /etc/portage/make.conf && \
     echo 'ACCEPT_KEYWORDS="~${ARCH}"' >> /etc/portage/make.conf && \
+    echo "GENTOO_MIRRORS='${LOCAL_MIRROR} http://ftp.fau.de/gentoo http://ftp.snt.utwente.nl/pub/os/linux/gentoo http://ftp-stud.hs-esslingen.de/pub/Mirrors/gentoo/ http://distfiles.gentoo.org'" >> /etc/portage/make.conf && \
     echo "CPU_FLAGS_X86='${PORTAGE_CPU_FLAGS}'" >> /etc/portage/make.conf && \
     echo "USE='lto jit -iptables nftables pgo -smartcard tofu graphite'" >> /etc/portage/make.conf && \
     echo 'BINPKG_FORMAT="gpkg"' >> /etc/portage/make.conf && \
