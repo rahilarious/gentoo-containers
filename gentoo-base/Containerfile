@@ -69,7 +69,7 @@ RUN \
     echo 'FEATURES="${FEATURES} distcc"' >> /etc/portage/make.conf && \
     export PATH="/usr/lib/distcc/bin:${PATH}" && \
     echo "#########     New PATH env : ${PATH}     ######" && \
-    distcc-config --set-hosts "'${DISTCC_SERVERS}'" && \
+    distcc-config --set-hosts "${DISTCC_SERVERS}" && \
     echo '########    Distcc servers are set as follows      #######' && \
     distcc-config --get-hosts && \
     \
