@@ -5,5 +5,6 @@ This is based on official Gentoo stage3 of [amd64-nomultilib-systemd-mergedusr](
 * Keyword updated to ~amd64
 * Ready-made directory structure for /etc/portage
 * Optimized for x86-64-v2  and x86-64-v3 [microarchitectures](https://en.wikipedia.org/wiki/X86-64#Microarchitecture_levels)
+* Globally compiled with ```lto, pgo, graphite``` USE flags
 * Recompiled whole stage3 from scratch so that every package is optimized.
 * Essential utilities added (htop, tmux, bash-completion..etc)
