@@ -1,5 +1,6 @@
 FROM localhost/gentoo/stage3:nomultilib-systemd-merged
 
+ARG BINHOST_URI
 ARG LOCAL_MIRROR
 ARG PORTAGE_FEATURES='-pid-sandbox -network-sandbox -ipc-sandbox binpkg-ignore-signature'
 ARG ANSIBLE_REPO
@@ -24,6 +25,18 @@ RUN \
     echo "USE='lto jit -iptables nftables pgo -smartcard tofu graphite'" >> /etc/portage/make.conf && \
     echo 'BINPKG_FORMAT="gpkg"' >> /etc/portage/make.conf && \
     echo "MAKEOPTS=\"-j$(nproc --ignore=${SUBSTRACT_NO_OF_CPU_BY}) -l$(nproc)\"" >> /etc/portage/make.conf && \
+    \
+    if [ -n "${BINHOST_URI}" ]; then \
+      echo '#####        Configuring binrepos.conf      ######' && \
+      echo '[binhost]' >> /etc/portage/binrepos.conf && \
+      echo "priority=100" >> /etc/portage/binrepos.conf && \
+      echo "sync-uri=${BINHOST_URI}" >> /etc/portage/binrepos.conf; \
+    fi && \
+    \
+    echo '#####        Configuring locale.gen in case glibc needs update      ######' && \
+    echo 'en_IN UTF-8' >> /etc/locale.gen && \
+    echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen && \
+    echo "en_US ISO-8859-1" >> /etc/locale.gen && \
     \
     if [ -d /var/db/repos/gentoo/.git ]; then \
       echo "#####    Found git Gentoo repo     #####" && \
@@ -60,6 +73,13 @@ RUN \
     distcc-config --get-hosts && \
     \
     emerge -vgkbn --quiet-build --with-bdeps=y dev-vcs/git 2>/dev/null && \
+    if [ ! -d /var/db/repos/gentoo/.git ]; then \
+      echo '#####        Found rsynced Gentoo repo      #####' && \
+      echo '####       Switching to git Gentoo repo      #####' && \
+      rm -rf /var/db/repos/gentoo && \
+      emerge --sync; \
+    fi && \
+    \
     emerge -vgkbn1 --quiet-build --with-bdeps=n -X 'dev-lang/rust' app-admin/ansible-core 2>/dev/null && \
     \
     mkdir -v /tmp/ansible-homelab && \
@@ -85,18 +105,12 @@ RUN \
     echo "portage_march: x86-64-${MICROARCH_LEVEL}"	>> /tmp/ansible-homelab/host_vars/currenthost.yml && \
     echo "portage_goamd64: ${MICROARCH_LEVEL}" 		>> /tmp/ansible-homelab/host_vars/currenthost.yml && \
     echo "portage_cpu_flags: '${PORTAGE_CPU_FLAGS}'" 	>> /tmp/ansible-homelab/host_vars/currenthost.yml && \
+    echo "gentoo_binpkg_server_uri: '${BINHOST_URI}'" 	>> /tmp/ansible-homelab/host_vars/currenthost.yml && \
     \
     ansible-playbook -l currenthost local.yml && \
     \
     mv /etc/portage/default-make.conf /etc/portage/builder-make.conf && \
     mv /etc/portage/original-make.conf /etc/portage/default-make.conf && \
-    if [ ! -d /var/db/repos/gentoo/.git ]; then \
-      echo '#####        Found rsynced Gentoo repo      #####' && \
-      echo '####       Switching to git Gentoo repo      #####' && \
-      rm -rf /var/db/repos/gentoo && \
-      emerge --sync; \
-    fi && \
-    \
     echo '############         Cleanup orphan packages            #########' && \
     emerge -c 2>/dev/null && \
     \
