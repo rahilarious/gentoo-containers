@@ -8,3 +8,7 @@ This is based on official Gentoo stage3 of [amd64-nomultilib-systemd-mergedusr](
 * Globally compiled with ```lto, pgo, graphite``` USE flags
 * Recompiled whole stage3 from scratch so that every package is optimized.
 * Essential utilities added (htop, tmux, bash-completion..etc)
+
+#### Usage
+* Mandatory flags: `--mount type=tmpfs,tmpfs-size=75%,destination=/tmp --mount type=tmpfs,tmpfs-size=75%,destination=/var/tmp`
+* Optional but recommended flags: `--volume gentoo_repos:/var/db/repos --volume gentoo_distfiles:/var/cache/distfiles --volume gentoo_binpkgs:/var/cache/binpkgs`
