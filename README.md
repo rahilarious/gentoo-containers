@@ -12,3 +12,5 @@ This is based on official Gentoo stage3 of [amd64-nomultilib-systemd-mergedusr](
 #### Usage
 * Mandatory flags: `--mount type=tmpfs,tmpfs-size=75%,destination=/tmp --mount type=tmpfs,tmpfs-size=75%,destination=/var/tmp`
 * Optional but recommended flags: `--volume gentoo_repos:/var/db/repos --volume gentoo_distfiles:/var/cache/distfiles --volume gentoo_binpkgs:/var/cache/binpkgs`
+* Which image tag to use depends on microarchitecture level of CPU `/lib64/ld-linux-x86-64.so* --help | grep -i supported`
+
