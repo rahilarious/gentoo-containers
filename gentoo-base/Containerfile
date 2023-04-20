@@ -92,7 +92,6 @@ RUN \
     echo '  - app-shells/bash-completion' 		>> /tmp/ansible-homelab/host_vars/currenthost.yml && \
     echo '  - app-text/tree' 				>> /tmp/ansible-homelab/host_vars/currenthost.yml && \
     echo '  - sys-apps/lsb-release' 			>> /tmp/ansible-homelab/host_vars/currenthost.yml && \
-    echo '  - app-shells/tmux-bash-completion' 		>> /tmp/ansible-homelab/host_vars/currenthost.yml && \
     echo '  - sys-process/htop'				>> /tmp/ansible-homelab/host_vars/currenthost.yml && \
     echo 'portage_features:' 				>> /tmp/ansible-homelab/host_vars/currenthost.yml && \
     echo "  - '${PORTAGE_FEATURES}'"			>> /tmp/ansible-homelab/host_vars/currenthost.yml && \

@@ -1,0 +1,32 @@
+ARG MICROARCH_LEVEL
+FROM ghcr.io/rahilarious/gentoo:x86-64-${MICROARCH_LEVEL}
+
+ARG BINHOST_URI
+COPY patches /etc/portage/patches/
+
+#TODO remove in next
+RUN truncate -s0 /etc/portage/make.conf/emerge_default_opts
+
+RUN \
+    --mount=type=tmpfs,tmpfs-size=100%,dst=/tmp \
+    --mount=type=tmpfs,tmpfs-size=100%,dst=/var/tmp \
+    \
+    if [ -n "${BINHOST_URI}" ]; then \
+      echo '#####        Configuring binrepos.conf      ######' && \
+      echo '[binhost]' >> /etc/portage/binrepos.conf && \
+      echo "priority=100" >> /etc/portage/binrepos.conf && \
+      echo "sync-uri=${BINHOST_URI}" >> /etc/portage/binrepos.conf; \
+    fi && \
+    \
+    emerge -vbgK --with-bdeps=n --quiet-build net-dns/coredns && \
+    \
+    echo '############         Cleaning up            #########' && \
+    rm -rf /var/tmp/portage && \
+    rm /var/log/emerge.log /var/log/portage/elog/summary.log && \
+    truncate -s0 /var/log/emerge* /etc/portage/binrepos.conf && \
+    \
+    echo '###########       CONGRATULATIONS !!! EVERYTHING SUCCESSFUL      #######'
+
+
+EXPOSE 53/tcp 53/udp
+ENTRYPOINT [ "/usr/bin/coredns" ]

@@ -1,0 +1,96 @@
+From 30dedb937f86724c8462fee6fdfaba6b291350a0 Mon Sep 17 00:00:00 2001
+From: Rahil Bhimjiani <rahil3108@gmail.com>
+Date: Sat, 25 Feb 2023 18:14:02 +0530
+Subject: [PATCH] remove-bloat
+
+---
+ core/dnsserver/zdirectives.go | 6 ------
+ core/plugin/zplugin.go        | 6 ------
+ plugin.cfg                    | 6 ------
+ 3 files changed, 18 deletions(-)
+
+diff --git a/core/dnsserver/zdirectives.go b/core/dnsserver/zdirectives.go
+index 6d71375..190a1c7 100644
+--- a/core/dnsserver/zdirectives.go
++++ b/core/dnsserver/zdirectives.go
+@@ -45,15 +45,9 @@ var Directives = []string{
+ 	"template",
+ 	"transfer",
+ 	"hosts",
+-	"route53",
+-	"azure",
+-	"clouddns",
+-	"k8s_external",
+-	"kubernetes",
+ 	"file",
+ 	"auto",
+ 	"secondary",
+-	"etcd",
+ 	"loop",
+ 	"forward",
+ 	"grpc",
+diff --git a/core/plugin/zplugin.go b/core/plugin/zplugin.go
+index b97cd85..797d16e 100644
+--- a/core/plugin/zplugin.go
++++ b/core/plugin/zplugin.go
+@@ -9,20 +9,17 @@ import (
+ 	_ "github.com/coredns/coredns/plugin/any"
+ 	_ "github.com/coredns/coredns/plugin/auto"
+ 	_ "github.com/coredns/coredns/plugin/autopath"
+-	_ "github.com/coredns/coredns/plugin/azure"
+ 	_ "github.com/coredns/coredns/plugin/bind"
+ 	_ "github.com/coredns/coredns/plugin/bufsize"
+ 	_ "github.com/coredns/coredns/plugin/cache"
+ 	_ "github.com/coredns/coredns/plugin/cancel"
+ 	_ "github.com/coredns/coredns/plugin/chaos"
+-	_ "github.com/coredns/coredns/plugin/clouddns"
+ 	_ "github.com/coredns/coredns/plugin/debug"
+ 	_ "github.com/coredns/coredns/plugin/dns64"
+ 	_ "github.com/coredns/coredns/plugin/dnssec"
+ 	_ "github.com/coredns/coredns/plugin/dnstap"
+ 	_ "github.com/coredns/coredns/plugin/erratic"
+ 	_ "github.com/coredns/coredns/plugin/errors"
+-	_ "github.com/coredns/coredns/plugin/etcd"
+ 	_ "github.com/coredns/coredns/plugin/file"
+ 	_ "github.com/coredns/coredns/plugin/forward"
+ 	_ "github.com/coredns/coredns/plugin/geoip"
+@@ -30,8 +27,6 @@ import (
+ 	_ "github.com/coredns/coredns/plugin/header"
+ 	_ "github.com/coredns/coredns/plugin/health"
+ 	_ "github.com/coredns/coredns/plugin/hosts"
+-	_ "github.com/coredns/coredns/plugin/k8s_external"
+-	_ "github.com/coredns/coredns/plugin/kubernetes"
+ 	_ "github.com/coredns/coredns/plugin/loadbalance"
+ 	_ "github.com/coredns/coredns/plugin/local"
+ 	_ "github.com/coredns/coredns/plugin/log"
+@@ -45,7 +40,6 @@ import (
+ 	_ "github.com/coredns/coredns/plugin/reload"
+ 	_ "github.com/coredns/coredns/plugin/rewrite"
+ 	_ "github.com/coredns/coredns/plugin/root"
+-	_ "github.com/coredns/coredns/plugin/route53"
+ 	_ "github.com/coredns/coredns/plugin/secondary"
+ 	_ "github.com/coredns/coredns/plugin/sign"
+ 	_ "github.com/coredns/coredns/plugin/template"
+diff --git a/plugin.cfg b/plugin.cfg
+index 407a668..da82d51 100644
+--- a/plugin.cfg
++++ b/plugin.cfg
+@@ -54,15 +54,9 @@ minimal:minimal
+ template:template
+ transfer:transfer
+ hosts:hosts
+-route53:route53
+-azure:azure
+-clouddns:clouddns
+-k8s_external:k8s_external
+-kubernetes:kubernetes
+ file:file
+ auto:auto
+ secondary:secondary
+-etcd:etcd
+ loop:loop
+ forward:forward
+ grpc:grpc
+-- 
+2.39.2
+

@@ -1,4 +1,5 @@
 ARG MICROARCH_LEVEL
 FROM ghcr.io/rahilarious/gentoo:x86-64-${MICROARCH_LEVEL}
+EXPOSE 3632/tcp
 ENTRYPOINT ["/usr/bin/distccd", "--no-detach", "--daemon", "--log-stderr"]
 CMD [ "-N", "15", "-p", "3632", "--allow-private", "--log-level", "warning" ]
