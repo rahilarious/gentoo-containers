@@ -1,0 +1,34 @@
+ARG MICROARCH_LEVEL
+FROM ghcr.io/rahilarious/gentoo:x86-64-${MICROARCH_LEVEL}
+
+ARG BINHOST_URI
+ARG PACKAGE_NAME="net-p2p/transmission"
+
+RUN \
+    --mount=type=tmpfs,tmpfs-size=100%,dst=/tmp \
+    --mount=type=tmpfs,tmpfs-size=100%,dst=/var/tmp \
+    \
+    if [ -n "${BINHOST_URI}" ]; then \
+      echo '#####        Configuring binrepos.conf      ######' && \
+      echo '[binhost]' >> /etc/portage/binrepos.conf && \
+      echo "priority=100" >> /etc/portage/binrepos.conf && \
+      echo "sync-uri=${BINHOST_URI}" >> /etc/portage/binrepos.conf; \
+    fi && \
+    \
+    emerge -vbgK --with-bdeps=n --quiet-build ${PACKAGE_NAME} && \
+    \
+    mkdir -v /downloads /config && \
+    \
+    echo '############         Cleaning up            #########' && \
+    rm -rf /var/tmp/portage && \
+    rm /var/log/emerge.log /var/log/portage/elog/summary.log && \
+    truncate -s0 /var/log/emerge* /etc/portage/binrepos.conf && \
+    \
+    echo '###########       CONGRATULATIONS !!! EVERYTHING SUCCESSFUL      #######'
+
+
+EXPOSE 9091/tcp 51413/tcp 51413/udp
+
+ENTRYPOINT [ "/usr/bin/transmission-daemon", "--foreground", "--download-dir", "/downloads", "--config-dir", "/config" ]
+CMD [ "--log-level=warn", "--allowed", "172.16.*.*,192.168.*.*,10.*.*.*,127.0.0.*", "--peerlimit-global", "500", "--peerlimit-torrent", "100" ]
+
