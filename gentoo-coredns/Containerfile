@@ -4,9 +4,6 @@ FROM ghcr.io/rahilarious/gentoo:x86-64-${MICROARCH_LEVEL}
 ARG BINHOST_URI
 COPY patches /etc/portage/patches/
 
-#TODO remove in next
-RUN truncate -s0 /etc/portage/make.conf/emerge_default_opts
-
 RUN \
     --mount=type=tmpfs,tmpfs-size=100%,dst=/tmp \
     --mount=type=tmpfs,tmpfs-size=100%,dst=/var/tmp \
