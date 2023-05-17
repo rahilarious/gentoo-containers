@@ -13,7 +13,8 @@ podman(/docker) run \
 --init -u distcc \
 --mount type=tmpfs,destination=/tmp,tmpfs-size=75% \
 --mount type=tmpfs,destination=/var/tmp,tmpfs-size=75% \
-ghcr.io/rahilarious/gentoo-distccd:<microarch level>
+ghcr.io/rahilarious/gentoo-distccd:<microarch level> \
+source /etc/profile && /usr/bin/distccd --no-detach --daemon --log-stderr -N 15 -p 3632 --allow-private --log-level warning
 ```
 
 Distccd will allow traffic from any _private_ network with niceness 15 by default.
@@ -25,7 +26,7 @@ podman(/docker) run \
 --mount type=tmpfs,destination=/tmp,tmpfs-size=75% \
 --mount type=tmpfs,destination=/var/tmp,tmpfs-size=75% \
 ghcr.io/rahilarious/gentoo-distccd:<microarch level> \
---allow 10.0.0.0/24 --port 6969 --nice 13 --log-level debug
+source /etc/profile && /usr/bin/distccd --no-detach --daemon --log-stderr --allow 10.0.0.0/24 --port 6969 --nice 13 --log-level debug
 ```
 
 This will only _allow_ traffic from subnet 10.0.0.0/24 listening on _port_ 6969/tcp with _niceness_ 13 and more verbose logs. More info on distccd(1)

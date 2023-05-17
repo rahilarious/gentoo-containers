@@ -1,5 +1,30 @@
 ARG MICROARCH_LEVEL
 FROM ghcr.io/rahilarious/gentoo:x86-64-${MICROARCH_LEVEL}
-EXPOSE 3632/tcp
-ENTRYPOINT ["/usr/bin/distccd", "--no-detach", "--daemon", "--log-stderr"]
-CMD [ "-N", "15", "-p", "3632", "--allow-private", "--log-level", "warning" ]
+
+ARG BINHOST_URI
+ARG PACKAGE_NAME="sys-devel/clang"
+
+RUN \
+    --mount=type=tmpfs,tmpfs-size=100%,dst=/tmp \
+    --mount=type=tmpfs,tmpfs-size=100%,dst=/var/tmp \
+    \
+    if [ -n "${BINHOST_URI}" ]; then \
+      echo '#####        Configuring binrepos.conf      ######' && \
+      echo '[binhost]' >> /etc/portage/binrepos.conf && \
+      echo "priority=100" >> /etc/portage/binrepos.conf && \
+      echo "sync-uri=${BINHOST_URI}" >> /etc/portage/binrepos.conf; \
+    fi && \
+    \
+    emerge -vbgK --with-bdeps=n --quiet-build ${PACKAGE_NAME} && \
+    \
+    echo '############         Cleaning up            #########' && \
+    rm -rf /var/tmp/portage && \
+    rm /var/log/emerge.log /var/log/portage/elog/summary.log && \
+    truncate -s0 /var/log/emerge* /etc/portage/binrepos.conf && \
+    \
+    echo '###########       CONGRATULATIONS !!! EVERYTHING SUCCESSFUL      #######'
+
+CMD \
+    source /etc/profile && \
+    echo ${PATH} && \
+    /usr/bin/distccd --no-detach --daemon --log-stderr -N 15 -p 3632 --allow-private --log-level warning
