@@ -17,6 +17,10 @@ RUN \
     \
     emerge -vbgK --with-bdeps=n --quiet-build ${PACKAGE_NAME} && \
     \
+    echo 'Distcc client is not needed so removing it...' && \
+    rm /etc/portage/make.conf/distcc && \
+    sed -i -e '/distcc/Id' /etc/profile.d/01-gentoo-base.sh && \
+    \
     echo '############         Cleaning up            #########' && \
     rm -rf /var/tmp/portage && \
     rm /var/log/emerge.log /var/log/portage/elog/summary.log && \
