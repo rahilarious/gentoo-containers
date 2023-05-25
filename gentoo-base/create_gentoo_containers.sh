@@ -2,7 +2,7 @@
 
 time { cd ${HOME}/containers/gentoo/gentoo-base && \
     wget -c https://bouncer.gentoo.org/fetch/root/all/releases/amd64/autobuilds/$(curl -sL https://bouncer.gentoo.org/fetch/root/all/releases/amd64//autobuilds/latest-stage3-amd64-nomultilib-systemd-mergedusr.txt | tail -n1 | awk '{print $1;}') && \
-    podman import -c 'CMD ["/usr/bin/bash"]' $(find ${HOME}/containers/gentoo/gentoo-base -type f -name 'stage3*' 2> /dev/null | tail -n1) gentoo/stage3:nomultilib-systemd-merged && \
+    podman import -c 'CMD ["/usr/bin/bash"]' $(find ${HOME}/containers/gentoo/gentoo-base -type f -name 'stage3*xz' 2> /dev/null | tail -n1) gentoo/stage3:nomultilib-systemd-merged && \
     podman build --squash-all \
 	   -f ${HOME}/containers/gentoo/gentoo-base/Containerfile \
 	   -v ${HOME}/.local/share/containers/storage/volumes/gentoo_repo/_data:/var/db/repos \
