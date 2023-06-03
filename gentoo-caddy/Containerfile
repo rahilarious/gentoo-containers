@@ -1,0 +1,35 @@
+ARG MICROARCH_LEVEL
+FROM ghcr.io/rahilarious/gentoo:x86-64-${MICROARCH_LEVEL}
+
+ARG BINHOST_URI
+COPY patches /etc/portage/patches/
+COPY Caddyfile /etc/caddy/Caddyfile
+
+RUN \
+    --mount=type=tmpfs,tmpfs-size=100%,dst=/tmp \
+    --mount=type=tmpfs,tmpfs-size=100%,dst=/var/tmp \
+    \
+    if [ -n "${BINHOST_URI}" ]; then \
+      echo '#####        Configuring binrepos.conf      ######' && \
+      echo '[binhost]' >> /etc/portage/binrepos.conf && \
+      echo "priority=100" >> /etc/portage/binrepos.conf && \
+      echo "sync-uri=${BINHOST_URI}" >> /etc/portage/binrepos.conf; \
+    fi && \
+    \
+    mkdir -p /srv /config/caddy /data/caddy && \
+    emerge -vbgK --with-bdeps=n --quiet-build www-servers/caddy && \
+    wget -O /srv/index.html "https://raw.githubusercontent.com/caddyserver/dist/master/welcome/index.html" && \
+    \
+    echo '############         Cleaning up            #########' && \
+    rm -rf /var/tmp/portage && \
+    rm /var/log/emerge.log /var/log/portage/elog/summary.log && \
+    truncate -s0 /var/log/emerge* /etc/portage/binrepos.conf && \
+    \
+    echo '###########       CONGRATULATIONS !!! EVERYTHING SUCCESSFUL      #######'
+
+# See https://caddyserver.com/docs/conventions#file-locations for details
+ENV XDG_CONFIG_HOME /config
+ENV XDG_DATA_HOME /data
+
+VOLUME [ "/config/", "/data/", "/srv" ]
+CMD [  "/usr/bin/caddy", "run", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile" ]
