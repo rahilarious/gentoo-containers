@@ -15,7 +15,7 @@ RUN \
       echo "sync-uri=${BINHOST_URI}" >> /etc/portage/binrepos.conf; \
     fi && \
     \
-    emerge -vbgK --with-bdeps=n --quiet-build net-dns/coredns && \
+    emerge -vbgk --with-bdeps=n --quiet-build net-dns/coredns && \
     \
     echo '############         Cleaning up            #########' && \
     rm -rf /var/tmp/portage && \

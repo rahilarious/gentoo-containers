@@ -17,7 +17,7 @@ RUN \
     fi && \
     \
     mkdir -p /srv /config/caddy /data/caddy && \
-    emerge -vbgK --with-bdeps=n --quiet-build www-servers/caddy && \
+    emerge -vbgk --with-bdeps=n --quiet-build www-servers/caddy && \
     wget -O /srv/index.html "https://raw.githubusercontent.com/caddyserver/dist/master/welcome/index.html" && \
     \
     echo '############         Cleaning up            #########' && \

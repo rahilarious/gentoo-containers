@@ -15,7 +15,7 @@ RUN \
       echo "sync-uri=${BINHOST_URI}" >> /etc/portage/binrepos.conf; \
     fi && \
     \
-    emerge -vbgK --with-bdeps=n --quiet-build ${PACKAGE_NAME} && \
+    emerge -vbgk --with-bdeps=n --quiet-build ${PACKAGE_NAME} && \
     \
     echo 'Distcc client is not needed so removing it...' && \
     rm /etc/portage/make.conf/distcc && \
