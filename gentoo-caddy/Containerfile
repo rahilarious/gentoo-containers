@@ -19,6 +19,7 @@ RUN \
     mkdir -p /srv /config/caddy /data/caddy && \
     emerge -vbgk --with-bdeps=n --quiet-build www-servers/caddy && \
     wget -O /srv/index.html "https://raw.githubusercontent.com/caddyserver/dist/master/welcome/index.html" && \
+    caddy completion bash > /etc/bash_completion.d/caddy && \
     \
     echo '############         Cleaning up            #########' && \
     rm -rf /var/tmp/portage && \
