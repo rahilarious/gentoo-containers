@@ -7,7 +7,7 @@
 set -e
 
 #### VARIABLES
-CURRENT_DIR=$(dirname $0)
+CURRENT_DIR=$(realpath $(dirname $0))
 
 PKG_NAME=$(basename ${CURRENT_DIR})
 
