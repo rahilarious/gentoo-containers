@@ -7,6 +7,7 @@ time { cd ${HOME}/containers/gentoo/gentoo-base && \
 	   -f ${HOME}/containers/gentoo/gentoo-base/Containerfile \
 	   -v /var/db/repos:/var/db/repos \
 	   -v /var/cache/distfiles:/var/cache/distfiles \
+	   -t ghcr.io/rahilarious/gentoo:$(git branch --show-current) \
 	   --secret=id=ansible-homelab-vaultpass,src=${HOME}/containers/gentoo/gentoo-base/vaultpass \
 	   --build-arg=LOCAL_MIRROR="http://alienware.hl.rahil.website/" \
 	   --build-arg=ANSIBLE_REPO="https://gitlab.com/rahilarious/ansible-homelab.git" \
