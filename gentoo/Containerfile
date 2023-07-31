@@ -10,7 +10,6 @@ ARG PORTAGE_CPU_FLAGS
 ARG DISTCC_SERVERS='localhost'
 
 RUN \
-    --mount=type=secret,id=ansible-homelab-vaultpass \
     --mount=type=tmpfs,tmpfs-size=100%,dst=/tmp \
     --mount=type=tmpfs,tmpfs-size=100%,dst=/var/tmp \
     \
@@ -42,7 +41,7 @@ RUN \
     \
     if [ -d /var/db/repos/gentoo/.git ]; then \
       echo "#####    Found git Gentoo repo     #####" && \
-      emerge -vgkbn --quiet-build --with-bdeps=y dev-vcs/git 2>/dev/null && \
+      emerge -vgkbn --quiet-build dev-vcs/git 2>/dev/null && \
       echo '[gentoo]' >> /etc/portage/repos.conf && \
       echo 'location = /var/db/repos/gentoo' >> /etc/portage/repos.conf && \
       echo 'sync-type = git' >> /etc/portage/repos.conf && \
@@ -79,7 +78,6 @@ RUN \
     \
     mkdir -v /tmp/ansible-homelab && \
     git clone "${ANSIBLE_REPO}" /tmp/ansible-homelab && \
-    cat /run/secrets/ansible-homelab-vaultpass > /tmp/ansible-homelab/.vaultpass && \
     echo '############         Installing ansible requirements            #########' && \
     cd /tmp/ansible-homelab && \
     ansible-galaxy install -r requirements.yml && \
