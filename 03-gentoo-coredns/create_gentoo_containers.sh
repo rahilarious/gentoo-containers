@@ -9,7 +9,7 @@ set -e
 #### VARIABLES
 CURRENT_DIR=$(realpath $(dirname $0))
 
-PKG_NAME=$(basename ${CURRENT_DIR})
+PKG_NAME=$(basename ${CURRENT_DIR} | cut -d- -f1 --complement)
 
 MICROARCH=$(cd ${CURRENT_DIR} && git branch --show-current)
 LEVEL_MICROARCH=$(echo ${MICROARCH} | cut -d- -f3)
