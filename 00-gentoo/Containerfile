@@ -41,7 +41,7 @@ RUN \
     \
     if [ -d /var/db/repos/gentoo/.git ]; then \
       echo "#####    Found git Gentoo repo     #####" && \
-      emerge -vgkbn --quiet-build dev-vcs/git 2>/dev/null && \
+      emerge -vgkbn --quiet-build dev-vcs/git && \
       echo '[gentoo]' >> /etc/portage/repos.conf && \
       echo 'location = /var/db/repos/gentoo' >> /etc/portage/repos.conf && \
       echo 'sync-type = git' >> /etc/portage/repos.conf && \
@@ -52,7 +52,7 @@ RUN \
     fi && \
     \
     echo '######       Syncing gentoo repo       #######' && \
-    emerge --sync 2>/dev/null && \
+    emerge --sync && \
     \
     if [ -f /etc/portage/repos.conf ]; then \
       echo '#####        Removing repos.conf      #####' && \
@@ -61,8 +61,7 @@ RUN \
     \
     echo '#######      Update portage,gcc,binutils,linux-headers if necessary       ######' && \
     emerge -v --quiet-build -gkb1u --with-bdeps=y sys-apps/portage && \
-    emerge -vgkbu1 --quiet-build --with-bdeps=y sys-devel/gcc sys-devel/binutils sys-kernel/linux-headers 2>/dev/null && \
-    emerge -c 2>/dev/null && \
+    emerge -vgkbu1 --quiet-build --with-bdeps=y -X "sys-devel/gcc:12" sys-devel/gcc sys-devel/binutils sys-kernel/linux-headers && \
     \
     emerge -vgkbn --quiet-build --with-bdeps=y sys-devel/distcc && \
     echo '######         Enabling distcc        ########' && \
@@ -73,8 +72,8 @@ RUN \
     echo '########    Distcc servers are set as follows      #######' && \
     distcc-config --get-hosts && \
     \
-    emerge -vgkbn --quiet-build --with-bdeps=y dev-vcs/git 2>/dev/null && \
-    emerge -vgkbn1 --quiet-build --with-bdeps=n -X 'dev-lang/rust' app-admin/ansible-core 2>/dev/null && \
+    emerge -vgkbn --quiet-build dev-vcs/git && \
+    emerge -vgkbn1 --quiet-build --with-bdeps=n -X 'dev-lang/rust' app-admin/ansible-core && \
     \
     mkdir -v /tmp/ansible-homelab && \
     git clone "${ANSIBLE_REPO}" /tmp/ansible-homelab && \
@@ -110,11 +109,8 @@ RUN \
       emerge --sync; \
     fi && \
     \
-    echo '############         Cleanup orphan packages            #########' && \
-    emerge -c 2>/dev/null && \
-    \
     echo '############         Rebuilding whole stage3            #########' && \
-    emerge -vgkb --quiet-build --with-bdeps=y -e @world 2>/dev/null && \
+    emerge -vgkb --quiet-build --with-bdeps=y -e -X "sys-devel/gcc:12" @world && \
     \
     echo '############         Post installation configurations            #########' && \
     \
@@ -122,7 +118,7 @@ RUN \
     eselect editor set mg && \
     \
     echo '############         Cleaning up            #########' && \
-    emerge -c 2>/dev/null && \
+    emerge -c && \
     distcc-config --set-hosts "localhost" && \
     sed -i -e "s|${LOCAL_MIRROR}||g" /etc/portage/make.conf/mirrors && \
     rm -rf /root/.ansible /tmp/ansible* /var/tmp/portage && \

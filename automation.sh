@@ -4,7 +4,7 @@
 set -e
 
 ### variables
-BUILD_TAG=$(date +%Y%m%d%H%M%S)
+BUILD_TAG=$(date +%Y%m%d%H%M)
 REGISTRIES_WITH_USERNAME="ghcr.io/rahilarious docker.io/rahilarious"
 MAIN_REGISTRY_WITH_USERNAME="ghcr.io/rahilarious"
 MICROARCHS="x86-64-v2 x86-64-v3"
@@ -30,10 +30,19 @@ do
 	    exit 1
 	fi
 	
+	### SAVE gentoo IMAGES in tar.zst to /tmp for release
+	if [[ ${PKG_NAME} == "gentoo" ]]
+	then
+	    echo "##########      Saving gentoo:${MICROARCH} image in /tmp         ############"
+	    sudo podman save ${MAIN_REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH} | zstdmt -z > /tmp/${PKG_NAME}-${MICROARCH}-${BUILD_TAG}.tar.zst
+	    ls -lah /tmp
+	fi
 
 	### TAG & PUSH IMAGE
 	for REGISTRY_WITH_USERNAME in ${REGISTRIES_WITH_USERNAME}
 	do
+	    echo "##########       ${REGISTRY_WITH_USERNAME}         ############"
+
 	    ### TAG & PUSH BASE TAG
 	    if [[ ${REGISTRY_WITH_USERNAME} != ${MAIN_REGISTRY_WITH_USERNAME} ]]
 	    then
