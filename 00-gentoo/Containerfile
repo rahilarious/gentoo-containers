@@ -60,10 +60,11 @@ RUN \
     fi && \
     \
     echo '#######      Update portage,gcc,binutils,linux-headers if necessary       ######' && \
-    emerge -v --quiet-build -gkb1u --with-bdeps=y sys-apps/portage && \
-    emerge -vgkbu1 --quiet-build --with-bdeps=y -X "sys-devel/gcc:12" sys-devel/gcc sys-devel/binutils sys-kernel/linux-headers && \
+    emerge -v --quiet-build -gkb1u sys-apps/portage && \
+    emerge -vgkbu1 --quiet-build -X "sys-devel/gcc:12" sys-devel/gcc sys-devel/binutils sys-kernel/linux-headers && \
+    emerge -c sys-devel/binutils sys-devel/gcc ; \
     \
-    emerge -vgkbn --quiet-build --with-bdeps=y sys-devel/distcc && \
+    emerge -vgkbn --quiet-build sys-devel/distcc && \
     echo '######         Enabling distcc        ########' && \
     echo 'FEATURES="${FEATURES} distcc"' >> /etc/portage/make.conf && \
     export PATH="/usr/lib/distcc/bin:${PATH}" && \
@@ -73,7 +74,7 @@ RUN \
     distcc-config --get-hosts && \
     \
     emerge -vgkbn --quiet-build dev-vcs/git && \
-    emerge -vgkbn1 --quiet-build --with-bdeps=n -X 'dev-lang/rust' app-admin/ansible-core && \
+    emerge -vgkbn1 --quiet-build -X 'dev-lang/rust' app-admin/ansible-core && \
     \
     mkdir -v /tmp/ansible-homelab && \
     git clone "${ANSIBLE_REPO}" /tmp/ansible-homelab && \
@@ -108,6 +109,9 @@ RUN \
       rm -rf /var/db/repos/gentoo && \
       emerge --sync; \
     fi && \
+    \
+    echo '############         Cleanup orphan packages            #########' && \
+    emerge -c ; \
     \
     echo '############         Rebuilding whole stage3            #########' && \
     emerge -vgkb --quiet-build --with-bdeps=y -e -X "sys-devel/gcc:12" @world && \
