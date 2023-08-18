@@ -69,6 +69,8 @@ do
 done
 
 git switch main
+git tag -m "${BUILD_TAG}" ${BUILD_TAG} main
+git push ${BUILD_TAG}
 
-echo "Congratulations !!! You can go for a break now."
+echo "Congratulations !!! You may upload tar files and release."
 
