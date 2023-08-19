@@ -2,7 +2,7 @@ ARG MICROARCH_LEVEL
 FROM ghcr.io/rahilarious/gentoo:x86-64-${MICROARCH_LEVEL}
 
 ARG BINHOST_URI
-ARG PACKAGE_NAME="sys-devel/clang"
+ARG PKG_NAME="sys-devel/clang"
 
 RUN \
     --mount=type=tmpfs,tmpfs-size=100%,dst=/tmp \
@@ -15,7 +15,7 @@ RUN \
       echo "sync-uri=${BINHOST_URI}" >> /etc/portage/binrepos.conf; \
     fi && \
     \
-    emerge -vbgk --with-bdeps=n --quiet-build ${PACKAGE_NAME} && \
+    emerge -vbgk --quiet-build ${PKG_NAME} && \
     \
     echo 'Distcc client is not needed so removing it...' && \
     rm /etc/portage/make.conf/distcc && \

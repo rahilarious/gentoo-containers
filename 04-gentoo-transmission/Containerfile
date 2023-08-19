@@ -2,7 +2,7 @@ ARG MICROARCH_LEVEL
 FROM ghcr.io/rahilarious/gentoo:x86-64-${MICROARCH_LEVEL}
 
 ARG BINHOST_URI
-ARG PACKAGE_NAME="net-p2p/transmission"
+ARG PKG_NAME="net-p2p/transmission"
 
 RUN \
     --mount=type=tmpfs,tmpfs-size=100%,dst=/tmp \
@@ -15,7 +15,10 @@ RUN \
       echo "sync-uri=${BINHOST_URI}" >> /etc/portage/binrepos.conf; \
     fi && \
     \
-    emerge -vbgk --with-bdeps=n --quiet-build ${PACKAGE_NAME} && \
+    emerge -vbgk --with-bdeps=y -o --quiet-build ${PKG_NAME} && \
+    emerge -vBgk --with-bdeps=y --quiet-build ${PKG_NAME} && \
+    emerge -c && \
+    emerge -vKg --with-bdeps=n --quiet-build ${PKG_NAME} && \
     \
     mkdir -v /downloads /config && \
     \
