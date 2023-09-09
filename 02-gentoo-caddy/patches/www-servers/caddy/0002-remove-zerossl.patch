@@ -1,21 +1,8 @@
-From aaf52d6c75d2154b8a8a563bf4c74a9db2e3c79a Mon Sep 17 00:00:00 2001
-From: Rahil Bhimjiani <rahil3108@gmail.com>
-Date: Sat, 3 Jun 2023 13:13:51 +0530
-Subject: [PATCH 2/2] remove zerossl
-
----
- caddyconfig/httpcaddyfile/builtins.go |   5 -
- caddyconfig/httpcaddyfile/tlsapp.go   |   4 -
- modules/caddytls/automation.go        |   1 -
- modules/caddytls/zerosslissuer.go     | 242 --------------------------
- 4 files changed, 252 deletions(-)
- delete mode 100644 modules/caddytls/zerosslissuer.go
-
 diff --git a/caddyconfig/httpcaddyfile/builtins.go b/caddyconfig/httpcaddyfile/builtins.go
-index 45da4a8..52f1d4e 100644
+index abd4844..d190d7b 100644
 --- a/caddyconfig/httpcaddyfile/builtins.go
 +++ b/caddyconfig/httpcaddyfile/builtins.go
-@@ -536,12 +536,7 @@ func parseTLS(h Helper) ([]ConfigValue, error) {
+@@ -538,12 +538,7 @@ func parseTLS(h Helper) ([]ConfigValue, error) {
  		}
  
  		for _, issuer := range defaultIssuers {
@@ -29,10 +16,10 @@ index 45da4a8..52f1d4e 100644
  				Class: "tls.cert_issuer",
  				Value: issuer,
 diff --git a/caddyconfig/httpcaddyfile/tlsapp.go b/caddyconfig/httpcaddyfile/tlsapp.go
-index 3d32b4f..0f0c9d5 100644
+index 927f225..03bc4bf 100644
 --- a/caddyconfig/httpcaddyfile/tlsapp.go
 +++ b/caddyconfig/httpcaddyfile/tlsapp.go
-@@ -373,11 +373,7 @@ func (st ServerType) buildTLSApp(
+@@ -377,11 +377,7 @@ func (st ServerType) buildTLSApp(
  
  					// if a specific endpoint is configured, can't use multiple default issuers
  					if globalACMECA != nil {
@@ -45,10 +32,10 @@ index 3d32b4f..0f0c9d5 100644
  				}
  			}
 diff --git a/modules/caddytls/automation.go b/modules/caddytls/automation.go
-index 7f216d5..8f6620b 100644
+index ee25400..1e84cc1 100644
 --- a/modules/caddytls/automation.go
 +++ b/modules/caddytls/automation.go
-@@ -287,7 +287,6 @@ func (ap *AutomationPolicy) Provision(tlsApp *TLS) error {
+@@ -347,7 +347,6 @@ func (ap *AutomationPolicy) isWildcardOrDefault() bool {
  func DefaultIssuers() []certmagic.Issuer {
  	return []certmagic.Issuer{
  		new(ACMEIssuer),
@@ -58,10 +45,10 @@ index 7f216d5..8f6620b 100644
  
 diff --git a/modules/caddytls/zerosslissuer.go b/modules/caddytls/zerosslissuer.go
 deleted file mode 100644
-index 0209294..0000000
+index 697bab0..0000000
 --- a/modules/caddytls/zerosslissuer.go
 +++ /dev/null
-@@ -1,242 +0,0 @@
+@@ -1,243 +0,0 @@
 -// Copyright 2015 Matthew Holt and The Caddy Authors
 -//
 -// Licensed under the Apache License, Version 2.0 (the "License");
@@ -89,11 +76,12 @@ index 0209294..0000000
 -	"strings"
 -	"sync"
 -
--	"github.com/caddyserver/caddy/v2"
--	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
 -	"github.com/caddyserver/certmagic"
 -	"github.com/mholt/acmez/acme"
 -	"go.uber.org/zap"
+-
+-	"github.com/caddyserver/caddy/v2"
+-	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
 -)
 -
 -func init() {
@@ -304,6 +292,3 @@ index 0209294..0000000
 -	// this interface so it can be treated as an ACMEIssuer
 -	_ interface{ GetACMEIssuer() *ACMEIssuer } = (*ZeroSSLIssuer)(nil)
 -)
--- 
-2.41.0
-
