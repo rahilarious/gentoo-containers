@@ -34,7 +34,7 @@ do
 	if [[ ${PKG_NAME} == "gentoo" ]]
 	then
 	    echo "##########      Saving gentoo:${MICROARCH} image in /tmp         ############"
-	    sudo podman save ${MAIN_REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH} | zstdmt -z > /tmp/${PKG_NAME}-${MICROARCH}-${BUILD_TAG}.tar.zst
+	    doas podman save ${MAIN_REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH} | zstdmt -z > /tmp/${PKG_NAME}-${MICROARCH}-${BUILD_TAG}.tar.zst
 	    ls -lah /tmp
 	fi
 
@@ -46,23 +46,23 @@ do
 	    ### TAG & PUSH BASE TAG
 	    if [[ ${REGISTRY_WITH_USERNAME} != ${MAIN_REGISTRY_WITH_USERNAME} ]]
 	    then
-		sudo podman tag ${MAIN_REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH} ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}
+		doas podman tag ${MAIN_REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH} ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}
 	    fi
-	    sudo podman push ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}
+	    doas podman push ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}
 	    
 	    ### TAG & PUSH EXTRA TAG(s)
 	    if [[ -s ${PKG_DIR}extra_tag ]]
 	    then
 		read EXTRA_TAG < ${PKG_DIR}extra_tag
-		sudo podman tag ${MAIN_REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH} ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG}
-		sudo podman tag ${MAIN_REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH} ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG}-${BUILD_TAG}
+		doas podman tag ${MAIN_REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH} ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG}
+		doas podman tag ${MAIN_REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH} ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG}-${BUILD_TAG}
 
-		sudo podman push ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG}
-		sudo podman push ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG}-${BUILD_TAG}
+		doas podman push ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG}
+		doas podman push ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG}-${BUILD_TAG}
 	    else
-		sudo podman tag ${MAIN_REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH} ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${BUILD_TAG}
+		doas podman tag ${MAIN_REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH} ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${BUILD_TAG}
 
-		sudo podman push ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${BUILD_TAG}
+		doas podman push ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${BUILD_TAG}
 	    fi
 	done
     done

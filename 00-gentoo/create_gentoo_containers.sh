@@ -33,7 +33,7 @@ URI_BINHOST=
 
 cd ${CURRENT_DIR}
 wget -c https://bouncer.gentoo.org/fetch/root/all/releases/amd64/autobuilds/$(curl -sL https://bouncer.gentoo.org/fetch/root/all/releases/amd64//autobuilds/latest-stage3-amd64-nomultilib-systemd-mergedusr.txt | tail -n1 | awk '{print $1;}')
-time sudo podman import -c 'CMD ["/usr/bin/bash"]' $(find -type f -name 'stage3*xz' 2> /dev/null | tail -n1) gentoo/stage3:nomultilib-systemd-merged
+time doas podman import -c 'CMD ["/usr/bin/bash"]' $(find -type f -name 'stage3*xz' 2> /dev/null | tail -n1) gentoo/stage3:nomultilib-systemd-merged
 echo "Initiating build in 5:"
 sleep 1
 echo "5..."
@@ -46,7 +46,7 @@ echo "2..."
 sleep 1
 echo "1..."
 sleep 1
-time sudo podman build --squash-all \
+time doas podman build --squash-all \
      -f ${CURRENT_DIR}/Containerfile \
      -v ${HOST_REPOS_DIR}:${REPOS_DIR} \
      -v ${HOST_DIST_DIR}:${DIST_DIR} \
