@@ -1,0 +1,36 @@
+ARG MICROARCH_LEVEL
+FROM ghcr.io/rahilarious/gentoo:x86-64-${MICROARCH_LEVEL}
+
+ARG BINHOST_URI
+ARG PKG_NAME="net-proxy/squid"
+
+RUN \
+    --mount=type=tmpfs,tmpfs-size=100%,dst=/tmp \
+    --mount=type=tmpfs,tmpfs-size=100%,dst=/var/tmp \
+    \
+    if [ -n "${BINHOST_URI}" ]; then \
+      echo '#####        Configuring binrepos.conf      ######' && \
+      { \
+        echo '[binhost]'; \
+        echo "priority=100"; \
+        echo "sync-uri=${BINHOST_URI}"; \
+      } >> /etc/portage/binrepos.conf; \
+    fi && \
+    \
+    emerge -vbgk --with-bdeps=y -o --quiet-build ${PKG_NAME} && \
+    emerge -vBgk --with-bdeps=y --quiet-build ${PKG_NAME} && \
+    emerge -c && \
+    emerge -vKg --with-bdeps=n --quiet-build ${PKG_NAME} && \
+    \
+    echo '############         Cleaning up            #########' && \
+    rm -rf /var/tmp/portage && \
+    rm /var/log/emerge.log /var/log/portage/elog/summary.log; \
+    truncate -s0 /var/log/emerge* /etc/portage/binrepos.conf && \
+    \
+    echo '###########       CONGRATULATIONS !!! EVERYTHING SUCCESSFUL      #######'
+
+
+VOLUME /var/cache/squid /var/log/squid /etc/squid
+EXPOSE 3128
+ENTRYPOINT [ "/usr/sbin/squid", "--foreground", "-YC" ]
+CMD [ "-d5" ]
