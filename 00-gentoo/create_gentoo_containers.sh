@@ -8,26 +8,12 @@ set -e
 
 #### VARIABLES
 CURRENT_DIR=$(realpath $(dirname $0))
-
+PARENT_DIR=$(dirname ${CURRENT_DIR})
+source ${PARENT_DIR}/config.env
+source ${CURRENT_DIR}/config.env
 PKG_NAME=$(basename ${CURRENT_DIR} | cut -d- -f1 --complement)
-
 MICROARCH=$(cd ${CURRENT_DIR} && git branch --show-current)
 LEVEL_MICROARCH=$(echo ${MICROARCH} | cut -d- -f3)
-
-DIST_DIR=$(portageq distdir)
-HOST_DIST_DIR=${DIST_DIR}
-
-REPOS_DIR=$(dirname $(portageq get_repo_path / gentoo))
-HOST_REPOS_DIR=${REPOS_DIR}
-
-REGISTRY_WITH_USERNAME="ghcr.io/rahilarious"
-
-BINPKGS_DIR=$(portageq envvar PKGDIR)
-HOST_BINPKGS_DIR=
-
-CPU_FLAGS=
-
-URI_BINHOST=
 
 #### CODE
 
@@ -51,11 +37,14 @@ time doas podman build --squash-all \
      -v ${HOST_REPOS_DIR}:${REPOS_DIR} \
      -v ${HOST_DIST_DIR}:${DIST_DIR} \
      -v ${HOST_BINPKGS_DIR}:${BINPKGS_DIR} \
-     -t ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH} \
+     -t ${MAIN_REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH} \
      --build-arg MICROARCH_LEVEL="${LEVEL_MICROARCH}" \
-     --build-arg=LOCAL_MIRROR="http://alienware.hl.rahil.website/" \
-     --build-arg=ANSIBLE_REPO="https://gitlab.com/rahilarious/ansible-homelab.git" \
-     --build-arg=DISTCC_SERVERS="localhost" \
+     --build-arg=LOCAL_MIRROR="${LOCAL_MIRROR}" \
+     --build-arg=ANSIBLE_REPO="${ANSIBLE_REPO}" \
+     --build-arg=DISTCC_SERVERS="${DISTCC_SERVERS}" \
      --build-arg=PORTAGE_CPU_FLAGS="${CPU_FLAGS}" \
      --build-arg=BINHOST_URI="${URI_BINHOST}" \
 
+
+source "${PARENT_DIR}"/scripts/modules/tag-images.sh
+source "${PARENT_DIR}"/scripts/modules/push-images.sh
