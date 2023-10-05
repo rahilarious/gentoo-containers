@@ -4,16 +4,15 @@
 set -e
 
 ### variables
-BUILD_TAG=$(date +%Y%m%d%H%M)
-REGISTRIES_WITH_USERNAME="ghcr.io/rahilarious docker.io/rahilarious"
-MAIN_REGISTRY_WITH_USERNAME="ghcr.io/rahilarious"
-MICROARCHS="x86-64-v2 x86-64-v3"
 CURRENT_DIR="$(realpath $(dirname $0))"
 PKG_DIRS="$(ls -d ${CURRENT_DIR}/*/)"
 
+source ${CURRENT_DIR}/config.env
+
+
 ### CODE
 cd ${CURRENT_DIR}
-for MICROARCH in ${MICROARCHS}
+for MICROARCH in ${MICROARCHS[@]}
 do
     git switch ${MICROARCH}
     for PKG_DIR in ${PKG_DIRS}
@@ -37,34 +36,6 @@ do
 	    doas podman save ${MAIN_REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH} | zstdmt -z > /tmp/${PKG_NAME}-${MICROARCH}-${BUILD_TAG}.tar.zst
 	    ls -lah /tmp
 	fi
-
-	### TAG & PUSH IMAGE
-	for REGISTRY_WITH_USERNAME in ${REGISTRIES_WITH_USERNAME}
-	do
-	    echo "##########       ${REGISTRY_WITH_USERNAME}         ############"
-
-	    ### TAG & PUSH BASE TAG
-	    if [[ ${REGISTRY_WITH_USERNAME} != ${MAIN_REGISTRY_WITH_USERNAME} ]]
-	    then
-		doas podman tag ${MAIN_REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH} ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}
-	    fi
-	    doas podman push ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}
-	    
-	    ### TAG & PUSH EXTRA TAG(s)
-	    if [[ -s ${PKG_DIR}extra_tag ]]
-	    then
-		read EXTRA_TAG < ${PKG_DIR}extra_tag
-		doas podman tag ${MAIN_REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH} ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG}
-		doas podman tag ${MAIN_REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH} ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG}-${BUILD_TAG}
-
-		doas podman push ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG}
-		doas podman push ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG}-${BUILD_TAG}
-	    else
-		doas podman tag ${MAIN_REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH} ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${BUILD_TAG}
-
-		doas podman push ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${BUILD_TAG}
-	    fi
-	done
     done
 done
 
