@@ -15,23 +15,26 @@ PKG_NAME=$(basename ${CURRENT_DIR} | cut -d- -f1 --complement)
 MICROARCH=$(cd ${CURRENT_DIR} && git branch --show-current)
 LEVEL_MICROARCH=$(echo ${MICROARCH} | cut -d- -f3)
 
-#### CODE
+#### FUNCTIONS
+wait_for_5() {
+    echo "Initiating ${1} in 5:"
+    sleep 1
+    for i in {5..1}; do
+	echo "${i}..."
+	sleep 1
+    done
+}
 
+#### CODE
 cd ${CURRENT_DIR}
-wget -c https://bouncer.gentoo.org/fetch/root/all/releases/amd64/autobuilds/$(curl -sL https://bouncer.gentoo.org/fetch/root/all/releases/amd64//autobuilds/latest-stage3-amd64-nomultilib-systemd-mergedusr.txt | tail -n1 | awk '{print $1;}')
+
+STAGE3_LATEST_BUILD_ID=$(curl -sL https://bouncer.gentoo.org/fetch/root/all/releases/amd64//autobuilds/latest-stage3-amd64-nomultilib-systemd-mergedusr.txt | gpg -d 2>/dev/null | tail -n1 | awk -F\/ '{print $1;}')
+wget -c https://bouncer.gentoo.org/fetch/root/all/releases/amd64/autobuilds/"${STAGE3_LATEST_BUILD_ID}"/stage3-amd64-nomultilib-systemd-mergedusr-"${STAGE3_LATEST_BUILD_ID}".tar.xz{,.asc}
+gpg --verify stage3-amd64-nomultilib-systemd-mergedusr-"${STAGE3_LATEST_BUILD_ID}".tar.xz.asc
+wait_for_5 import
+
 time doas podman import -c 'CMD ["/usr/bin/bash"]' $(find -type f -name 'stage3*xz' 2> /dev/null | tail -n1) gentoo/stage3:nomultilib-systemd-merged
-echo "Initiating build in 5:"
-sleep 1
-echo "5..."
-sleep 1
-echo "4..."
-sleep 1
-echo "3..."
-sleep 1
-echo "2..."
-sleep 1
-echo "1..."
-sleep 1
+wait_for_5 build
 time doas podman build --squash-all \
      -f ${CURRENT_DIR}/Containerfile \
      -v ${HOST_REPOS_DIR}:${REPOS_DIR} \
