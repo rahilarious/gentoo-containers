@@ -1,4 +1,4 @@
-time doas podman build \
+time doas podman build $(if [[ -n ${DISABLE_CACHE} ]]; then echo '--no-cache'; fi) \
      -f ${CURRENT_DIR}/Containerfile \
      -v ${HOST_REPOS_DIR}:${REPOS_DIR} \
      -v ${HOST_DIST_DIR}:${DIST_DIR} \
