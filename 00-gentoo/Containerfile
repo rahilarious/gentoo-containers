@@ -89,6 +89,8 @@ RUN \
     emerge -vgkbn --quiet-build dev-vcs/git && \
     emerge -vgkbn1 --quiet-build app-admin/ansible-core app-admin/doas && \
     \
+    echo 'permit nopass root' >> /etc/doas.conf && \
+    \
     mkdir -v /tmp/ansible-homelab && \
     git clone "${ANSIBLE_REPO}" /tmp/ansible-homelab && \
     echo '############         Installing ansible requirements            #########' && \
