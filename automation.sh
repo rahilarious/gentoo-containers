@@ -5,7 +5,7 @@ set -e
 
 ### variables
 CURRENT_DIR="$(realpath $(dirname $0))"
-PKG_DIRS="$(ls -d ${CURRENT_DIR}/*/)"
+PKG_DIRS="$(ls -d ${CURRENT_DIR}/*gentoo*/)"
 
 source ${CURRENT_DIR}/config.env
 
