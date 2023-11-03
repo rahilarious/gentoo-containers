@@ -72,9 +72,9 @@ RUN \
     emerge -vbn1 --quiet-build app-portage/getuto && \
     getuto && \
     \
-    echo '#######      Update portage,gcc,binutils,linux-headers if necessary       ######' && \
+    echo '#######      Update portage & toolchain if necessary       ######' && \
     emerge -v --quiet-build -gkb1u sys-apps/portage && \
-    emerge -vgkbu1 --quiet-build sys-devel/gcc sys-devel/binutils sys-kernel/linux-headers && \
+    emerge -vgkbu1 --quiet-build -X 'sys-devel/binutils:2.40' sys-libs/glibc sys-devel/gcc sys-devel/binutils sys-kernel/linux-headers && \
     emerge -c sys-devel/binutils sys-devel/gcc ; \
     \
     emerge -vgkbn --quiet-build sys-devel/distcc && \
