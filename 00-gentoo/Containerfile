@@ -87,7 +87,7 @@ RUN \
     distcc-config --get-hosts && \
     \
     emerge -vgkbn --quiet-build dev-vcs/git && \
-    emerge -vgkbn1 --quiet-build app-admin/ansible-core && \
+    emerge -vgkbn1 --quiet-build app-admin/ansible-core app-admin/doas && \
     \
     mkdir -v /tmp/ansible-homelab && \
     git clone "${ANSIBLE_REPO}" /tmp/ansible-homelab && \
