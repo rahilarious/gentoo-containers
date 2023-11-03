@@ -46,9 +46,6 @@ RUN \
     echo "en_US ISO-8859-1"; \
     } >> /etc/locale.gen && \
     \
-    echo '#####        Configuring /etc/portage/gnupg      ######' && \
-    getuto && \
-    \
     if [ -d /var/db/repos/gentoo/.git ]; then \
       echo "#####    Found git Gentoo repo     #####" && \
       emerge -vgkbn --quiet-build dev-vcs/git && \
@@ -71,6 +68,10 @@ RUN \
       rm /etc/portage/repos.conf; \
     fi && \
     \
+    echo '#####        Configuring /etc/portage/gnupg      ######' && \
+    emerge -vbn1 --quiet-build app-portage/getuto && \
+    getuto && \
+    \
     echo '#######      Update portage,gcc,binutils,linux-headers if necessary       ######' && \
     emerge -v --quiet-build -gkb1u sys-apps/portage && \
     emerge -vgkbu1 --quiet-build sys-devel/gcc sys-devel/binutils sys-kernel/linux-headers && \
@@ -86,7 +87,7 @@ RUN \
     distcc-config --get-hosts && \
     \
     emerge -vgkbn --quiet-build dev-vcs/git && \
-    emerge -vgkbn1 --quiet-build -X 'dev-lang/rust' app-admin/ansible-core && \
+    emerge -vgkbn1 --quiet-build app-admin/ansible-core && \
     \
     mkdir -v /tmp/ansible-homelab && \
     git clone "${ANSIBLE_REPO}" /tmp/ansible-homelab && \
