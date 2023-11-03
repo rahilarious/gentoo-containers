@@ -35,8 +35,9 @@ RUN \
       echo '[binhost]'; \
       echo "priority=100"; \
       echo "sync-uri=${BINHOST_URI}"; \
-      } >> /etc/portage/binrepos.conf; \
+      } >> /etc/portage/binrepos.conf/mybinhost.conf; \
     fi && \
+    rm /etc/portage/binrepos.conf/gentoobinhost.conf && \
     \
     echo '#####        Configuring locale.gen in case glibc needs update      ######' && \
     { \
@@ -140,7 +141,7 @@ RUN \
     sed -i -e "s|${LOCAL_MIRROR}||g" /etc/portage/make.conf/mirrors && \
     rm -rf /root/.ansible /tmp/ansible* /var/tmp/portage && \
     rm /var/log/emerge.log /var/log/portage/elog/summary.log && \
-    truncate -s0 /var/log/emerge* /etc/portage/binrepos.conf && \
+    truncate -s0 /var/log/emerge* /etc/portage/binrepos.conf/mybinhost.conf && \
     \
     echo '###########       CONGRATULATIONS !!! EVERYTHING SUCCESSFUL      #######'
 

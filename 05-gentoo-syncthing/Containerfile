@@ -14,7 +14,7 @@ RUN \
         echo '[binhost]'; \
         echo "priority=100"; \
         echo "sync-uri=${BINHOST_URI}"; \
-      } >> /etc/portage/binrepos.conf; \
+      } >> /etc/portage/binrepos.conf/mybinhost.conf; \
     fi && \
     \
     emerge -vbgk --with-bdeps=y -o --quiet-build ${PKG_NAME} && \
@@ -25,7 +25,7 @@ RUN \
     echo '############         Cleaning up            #########' && \
     rm -rf /var/tmp/portage && \
     rm /var/log/emerge.log /var/log/portage/elog/summary.log && \
-    truncate -s0 /var/log/emerge* /etc/portage/binrepos.conf && \
+    truncate -s0 /var/log/emerge* /etc/portage/binrepos.conf/mybinhost.conf && \
     \
     echo '###########       CONGRATULATIONS !!! EVERYTHING SUCCESSFUL      #######'
 
