@@ -24,8 +24,7 @@ RUN \
     emerge -vBgk --with-bdeps=y --quiet-build ${PKG_NAME} && \
     emerge -c && \
     emerge -vKg --with-bdeps=n --quiet-build ${PKG_NAME} && \
-    wget -O /srv/index.html "https://raw.githubusercontent.com/caddyserver/dist/master/welcome/index.html" && \
-    caddy completion bash > /etc/bash_completion.d/caddy && \
+    mv -v /usr/share/caddy/index.html /srv/index.html && \
     \
     echo '############         Cleaning up            #########' && \
     rm -rf /var/tmp/portage && \
