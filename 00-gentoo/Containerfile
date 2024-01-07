@@ -102,6 +102,7 @@ RUN \
     { \
       echo 'gentoo_base_packages:'; \
       echo '  - app-editors/mg'; \
+      echo '  - app-eselect/eselect-repository'; \
       echo '  - app-misc/tmux'; \
       echo '  - app-shells/bash-completion'; \
       echo '  - app-text/tree'; \
