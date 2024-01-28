@@ -10,6 +10,12 @@ if [[ -z ${DISABLE_PUSH} ]]; then
 	if [[ -n ${EXTRA_TAG} ]]; then
 	    doas podman push ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG}
 	    doas podman push ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG}-${BUILD_TAG}
+	    if [[ -n ${IS_SEMVER} ]]; then
+		doas podman push ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG%.*}
+		doas podman push ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG%.*}-${BUILD_TAG}
+		doas podman push ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG%%.*}
+		doas podman push ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG%%.*}-${BUILD_TAG}
+	    fi
 	else
 	    doas podman push ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${BUILD_TAG}
 	fi
