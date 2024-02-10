@@ -2,6 +2,11 @@
 
 Run Caddy container which is optimized for your CPU. This image is compatible with [official caddy image](https://hub.docker.com/_/caddy).
 
+#### Tags:
+[Microarchitecture](https://en.wikipedia.org/wiki/X86-64#Microarchitecture_levels) and versions are self-explanatory.
+
+Images with *with-events-handlers* tag contain Caddy binary built with external module [events.handlers.exec](https://caddyserver.com/docs/modules/events.handlers.exec) which lets user run a script when Caddy events occur. (i.e. notify web admin when certificate is obtained/renewed or some reverse proxy upstream goes up/down). Refer to [this page](https://caddyserver.com/docs/caddyfile/options#event-options) for more details.
+
 #### Usage:
 Works with rootless docker/podman as well.
 
