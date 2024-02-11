@@ -103,11 +103,16 @@ RUN \
       echo 'gentoo_base_packages:'; \
       echo '  - app-editors/mg'; \
       echo '  - app-eselect/eselect-repository'; \
+      echo '  - app-misc/jq'; \
+      echo '  - app-misc/neofetch'; \
+      echo '  - app-misc/resolve-march-native'; \
       echo '  - app-misc/tmux'; \
+      echo '  - app-portage/cpuid2cpuflags'; \
       echo '  - app-shells/bash-completion'; \
       echo '  - app-text/tree'; \
       echo '  - sys-apps/lsb-release'; \
       echo '  - sys-process/htop'; \
+      echo '  - sys-process/lsof'; \
       echo 'portage_features:'; \
       echo "  - '${PORTAGE_FEATURES}'"; \
       echo "portage_local_mirror: '${LOCAL_MIRROR}'"; \
