@@ -27,7 +27,7 @@ RUN \
       echo 'BINPKG_FORMAT="gpkg"'; \
       echo 'CLEAN_DELAY="3"'; \
       echo "MAKEOPTS=\"-j$(nproc --ignore=${SUBSTRACT_NO_OF_CPU_BY}) -l$(nproc)\""; \
-    } >> /etc/portage/make.conf && \
+    } | tee -a /etc/portage/make.conf && \
     \
     if [ -n "${BINHOST_URI}" ]; then \
       echo '#####        Configuring binrepos.conf      ######' && \
@@ -35,7 +35,7 @@ RUN \
       echo '[binhost]'; \
       echo "priority=100"; \
       echo "sync-uri=${BINHOST_URI}"; \
-      } >> /etc/portage/binrepos.conf/mybinhost.conf; \
+      } | tee -a /etc/portage/binrepos.conf/mybinhost.conf; \
     fi && \
     rm /etc/portage/binrepos.conf/gentoobinhost.conf && \
     \
@@ -44,7 +44,7 @@ RUN \
     echo 'en_IN UTF-8'; \
     echo "en_US.UTF-8 UTF-8"; \
     echo "en_US ISO-8859-1"; \
-    } >> /etc/locale.gen && \
+    } | tee -a /etc/locale.gen && \
     \
     echo '#####        Configuring /etc/portage/gnupg      ######' && \
     getuto -v && \
@@ -60,7 +60,7 @@ RUN \
         echo 'clone-depth = 1'; \
         echo 'sync-depth = 1'; \
         echo 'autosync = yes'; \
-      } >> /etc/portage/repos.conf; \
+      } | tee -a /etc/portage/repos.conf; \
     fi && \
     \
     echo '######       Syncing gentoo repo       #######' && \
@@ -81,7 +81,7 @@ RUN \
     \
     emerge -vgkbn --quiet-build sys-devel/distcc && \
     echo '######         Enabling distcc        ########' && \
-    echo 'FEATURES="${FEATURES} distcc"' >> /etc/portage/make.conf && \
+    echo 'FEATURES="${FEATURES} distcc"' | tee -a /etc/portage/make.conf && \
     export PATH="/usr/lib/distcc/bin:${PATH}" && \
     echo "#########     New PATH env : ${PATH}     ######" && \
     distcc-config --set-hosts "${DISTCC_SERVERS}" && \
@@ -91,7 +91,7 @@ RUN \
     emerge -vgkbn --quiet-build dev-vcs/git && \
     emerge -vgkbn1 --quiet-build app-admin/ansible-core app-admin/doas && \
     \
-    echo 'permit nopass root' >> /etc/doas.conf && \
+    echo 'permit nopass root' | tee -a /etc/doas.conf && \
     \
     mkdir -v /tmp/ansible-homelab && \
     git clone "${ANSIBLE_REPO}" /tmp/ansible-homelab && \
@@ -122,7 +122,7 @@ RUN \
       echo "portage_goamd64: ${MICROARCH_LEVEL}"; \
       echo "portage_cpu_flags: '${PORTAGE_CPU_FLAGS}'"; \
       echo "gentoo_binpkg_server_uri: '${BINHOST_URI}'"; \
-    } >> /tmp/ansible-homelab/host_vars/currenthost.yml && \
+    } | tee -a /tmp/ansible-homelab/host_vars/currenthost.yml && \
     \
     ansible-playbook -l currenthost local.yml && \
     \
