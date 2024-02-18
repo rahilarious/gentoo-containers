@@ -46,6 +46,9 @@ RUN \
     echo "en_US ISO-8859-1"; \
     } >> /etc/locale.gen && \
     \
+    echo '#####        Configuring /etc/portage/gnupg      ######' && \
+    getuto -v && \
+    \
     if [ -d /var/db/repos/gentoo/.git ]; then \
       echo "#####    Found git Gentoo repo     #####" && \
       emerge -vgkbn --quiet-build dev-vcs/git && \
@@ -68,9 +71,6 @@ RUN \
       rm /etc/portage/repos.conf; \
     fi && \
     \
-    echo '#####        Configuring /etc/portage/gnupg      ######' && \
-    emerge -vbn1 --quiet-build app-portage/getuto && \
-    getuto && \
     \
     echo '#######      Update portage & toolchain if necessary       ######' && \
     emerge -v --quiet-build -gkb1u sys-apps/portage && \
