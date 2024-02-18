@@ -100,7 +100,7 @@ RUN \
     sed -i -e '/virtualization_type/d' /tmp/ansible-homelab/playbooks/set_facts.yml && \
     \
     { \
-      echo 'gentoo_base_packages:'; \
+      echo 'base_packages:'; \
       echo '  - app-editors/mg'; \
       echo '  - app-eselect/eselect-repository'; \
       echo '  - app-misc/jq'; \
@@ -157,10 +157,10 @@ RUN \
 
 
 LABEL \
-    org.opencontainers.image.description="Gentoo with ~amd64, -march=x86-64-${MICROARCH_LEVEL}, nomultilib-systemd-merged-usr profile and few added utilities" \
-    org.opencontainers.image.title='Gentoo for GenZ' \
+    org.opencontainers.image.description="Gentoo with ~amd64, -march=x86-64-${MICROARCH_LEVEL}, nomultilib-systemd-merged-usr + hardened profile and few added utilities" \
+    org.opencontainers.image.title='Gentoo on Steroids' \
     org.opencontainers.image.source='https://github.com/rahilarious/gentoo-containers' \
     org.opencontainers.image.url='https://github.com/rahilarious/gentoo-containers' \
-    org.opencontainers.image.authors='Rahil Bhimjiani (rahil3108@gmail.com)'
+    org.opencontainers.image.authors='Rahil Bhimjiani <me@rahil.rocks>'
 
 CMD ["/usr/bin/bash"]
