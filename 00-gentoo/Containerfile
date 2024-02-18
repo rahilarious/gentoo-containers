@@ -71,6 +71,8 @@ RUN \
       rm /etc/portage/repos.conf; \
     fi && \
     \
+    echo '#####        Adding hardened profile      ######' && \
+    echo '../../../../../../../features/hardened/amd64/no-multilib' | tee -a /var/db/repos/gentoo/profiles/default/linux/amd64/17.1/no-multilib/systemd/merged-usr/parent && \
     \
     echo '#######      Update portage & toolchain if necessary       ######' && \
     emerge -v --quiet-build -gkb1u sys-apps/portage && \
