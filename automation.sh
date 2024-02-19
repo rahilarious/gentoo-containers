@@ -17,7 +17,11 @@ do
     git switch ${MICROARCH}
     for PKG_DIR in ${PKG_DIRS}
     do
-	PKG_NAME=$(basename ${PKG_DIR})
+	if [[ $(basename ${PKG_DIR}) == 'base' ]]; then
+	    PKG_NAME="gentoo"
+	else
+	    PKG_NAME=$(basename ${PKG_DIR})
+	fi
 
 	## BUILD IMAGE
 	echo "##########       ${PKG_NAME} (${MICROARCH})         ############"
