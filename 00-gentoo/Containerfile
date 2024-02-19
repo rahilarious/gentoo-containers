@@ -35,7 +35,7 @@ RUN \
       echo '[binhost]'; \
       echo "priority=100"; \
       echo "sync-uri=${BINHOST_URI}"; \
-      } | tee -a /etc/portage/binrepos.conf/mybinhost.conf; \
+      } | tee -a /etc/portage/binrepos.conf/gentoo-on-steroids.conf; \
     fi && \
     rm /etc/portage/binrepos.conf/gentoobinhost.conf && \
     \
@@ -152,7 +152,7 @@ RUN \
     sed -i -e "s|${LOCAL_MIRROR}||g" /etc/portage/make.conf/mirrors && \
     rm -rf /root/.ansible /tmp/ansible* /var/tmp/portage && \
     rm /var/log/emerge.log /var/log/portage/elog/summary.log && \
-    truncate -s0 /var/log/emerge* /etc/portage/binrepos.conf/mybinhost.conf && \
+    truncate -s0 /var/log/emerge* /etc/portage/binrepos.conf/gentoo-on-steroids.conf && \
     \
     echo '###########       CONGRATULATIONS !!! EVERYTHING SUCCESSFUL      #######'
 
