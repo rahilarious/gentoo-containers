@@ -16,7 +16,7 @@ RUN \
         echo '[binhost]'; \
         echo "priority=100"; \
         echo "sync-uri=${BINHOST_URI}"; \
-      } >> /etc/portage/binrepos.conf/gentoo-on-steroids.conf; \
+      } | tee -a /etc/portage/binrepos.conf/gentoo-on-steroids.conf; \
     fi && \
     \
     mkdir -pv /srv /config/caddy /data/caddy && \
