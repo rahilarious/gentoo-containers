@@ -5,7 +5,7 @@ set -e
 
 ### variables
 CURRENT_DIR="$(realpath $(dirname $0))"
-PKG_DIRS="$(ls -d ${CURRENT_DIR}/*gentoo*/)"
+PKG_DIRS="$(ls -d ${CURRENT_DIR}/*/)"
 
 source ${CURRENT_DIR}/config.env
 
@@ -17,7 +17,7 @@ do
     git switch ${MICROARCH}
     for PKG_DIR in ${PKG_DIRS}
     do
-	PKG_NAME=$(basename ${PKG_DIR} | cut -d- -f1 --complement)
+	PKG_NAME=$(basename ${PKG_DIR})
 
 	## BUILD IMAGE
 	echo "##########       ${PKG_NAME} (${MICROARCH})         ############"

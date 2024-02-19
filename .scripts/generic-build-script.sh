@@ -11,7 +11,7 @@ CURRENT_DIR=$(realpath $(dirname $0))
 PARENT_DIR=$(dirname ${CURRENT_DIR})
 source ${PARENT_DIR}/config.env
 source ${CURRENT_DIR}/config.env
-PKG_NAME=$(basename ${CURRENT_DIR} | cut -d- -f1 --complement)
+PKG_NAME=$(basename ${CURRENT_DIR})
 MICROARCH=$(cd ${CURRENT_DIR} && git branch --show-current)
 LEVEL_MICROARCH=$(echo ${MICROARCH} | cut -d- -f3)
 
