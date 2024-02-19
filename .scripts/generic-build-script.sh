@@ -16,6 +16,6 @@ MICROARCH=$(cd ${CURRENT_DIR} && git branch --show-current)
 LEVEL_MICROARCH=$(echo ${MICROARCH} | cut -d- -f3)
 
 #### CODE
-source "${PARENT_DIR}"/scripts/modules/build-images.sh
-source "${PARENT_DIR}"/scripts/modules/tag-images.sh
-source "${PARENT_DIR}"/scripts/modules/push-images.sh
+source "${PARENT_DIR}"/.scripts/modules/build-images.sh
+source "${PARENT_DIR}"/.scripts/modules/tag-images.sh
+source "${PARENT_DIR}"/.scripts/modules/push-images.sh

@@ -49,5 +49,5 @@ time doas podman build --squash-all \
      --build-arg=BINHOST_URI="${URI_BINHOST}" \
 
 
-source "${PARENT_DIR}"/scripts/modules/tag-images.sh
-source "${PARENT_DIR}"/scripts/modules/push-images.sh
+source "${PARENT_DIR}"/.scripts/modules/tag-images.sh
+source "${PARENT_DIR}"/.scripts/modules/push-images.sh

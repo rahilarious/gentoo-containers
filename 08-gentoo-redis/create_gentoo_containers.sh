@@ -1,1 +1,1 @@
-../scripts/generic-build-script.sh
+../.scripts/generic-build-script.sh
