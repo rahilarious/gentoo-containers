@@ -13,7 +13,7 @@ RUN \
     if [ -n "${BINHOST_URI}" ]; then \
       echo '#####        Configuring binrepos.conf      ######' && \
       { \
-        echo '[binhost]'; \
+        echo '[gentoo-on-steroids-binpkgserver]'; \
         echo "priority=100"; \
         echo "sync-uri=${BINHOST_URI}"; \
       } | tee -a /etc/portage/binrepos.conf/gentoo-on-steroids.conf; \
