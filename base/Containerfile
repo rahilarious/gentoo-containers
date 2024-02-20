@@ -51,7 +51,7 @@ RUN \
     \
     if [ -d /var/db/repos/gentoo/.git ]; then \
       echo "#####    Found git Gentoo repo     #####" && \
-      emerge -vgkbn --quiet-build dev-vcs/git && \
+      emerge -vgkbn1 --quiet-build dev-vcs/git && \
       { \
         echo '[gentoo]'; \
         echo 'location = /var/db/repos/gentoo'; \
@@ -79,7 +79,7 @@ RUN \
     emerge -vgkbu1 --quiet-build -X 'sys-devel/binutils:2.42' sys-libs/glibc sys-devel/gcc sys-devel/binutils sys-kernel/linux-headers && \
     emerge -c sys-devel/binutils sys-devel/gcc ; \
     \
-    emerge -vgkbn --quiet-build sys-devel/distcc && \
+    emerge -vgkbn1 --quiet-build sys-devel/distcc && \
     echo '######         Enabling distcc        ########' && \
     echo 'FEATURES="${FEATURES} distcc"' | tee -a /etc/portage/make.conf && \
     export PATH="/usr/lib/distcc/bin:${PATH}" && \
@@ -88,7 +88,7 @@ RUN \
     echo '########    Distcc servers are set as follows      #######' && \
     distcc-config --get-hosts && \
     \
-    emerge -vgkbn --quiet-build dev-vcs/git && \
+    emerge -vgkbn1 --quiet-build dev-vcs/git && \
     emerge -vgkbn1 --quiet-build app-admin/ansible-core app-admin/doas && \
     \
     echo 'permit nopass root' | tee -a /etc/doas.conf && \
@@ -112,7 +112,9 @@ RUN \
       echo '  - app-portage/cpuid2cpuflags'; \
       echo '  - app-shells/bash-completion'; \
       echo '  - app-text/tree'; \
+      echo '  - dev-vcs/git'; \
       echo '  - sys-apps/lsb-release'; \
+      echo '  - sys-devel/distcc'; \
       echo '  - sys-process/htop'; \
       echo '  - sys-process/lsof'; \
       echo 'portage_features:'; \
