@@ -76,7 +76,7 @@ RUN \
     \
     echo '#######      Update portage & toolchain if necessary       ######' && \
     emerge -v --quiet-build -gkb1u sys-apps/portage && \
-    emerge -vgkbu1 --quiet-build -X 'sys-devel/binutils:2.42' sys-libs/glibc sys-devel/gcc sys-devel/binutils sys-kernel/linux-headers && \
+    emerge -vgkbu1 --quiet-build sys-libs/glibc sys-devel/gcc sys-devel/binutils sys-kernel/linux-headers && \
     emerge -c sys-devel/binutils sys-devel/gcc ; \
     \
     emerge -vgkbn1 --quiet-build sys-devel/distcc && \
@@ -104,6 +104,7 @@ RUN \
     { \
       echo 'base_packages:'; \
       echo '  - app-editors/mg'; \
+      echo '  - app-editors/nano'; \
       echo '  - app-eselect/eselect-repository'; \
       echo '  - app-misc/jq'; \
       echo '  - app-misc/neofetch'; \
@@ -141,9 +142,12 @@ RUN \
     emerge -c ; \
     \
     echo '############         Rebuilding whole stage3            #########' && \
-    emerge -vgkb --quiet-build --with-bdeps=y -e -X 'sys-devel/binutils:2.42' @world && \
+    emerge -vgkb --quiet-build --with-bdeps=y -e @world && \
     \
     echo '############         Post installation configurations            #########' && \
+    \
+    echo '############         setting nano as default editor            #########' && \
+    eselect editor set nano && \
     \
     echo '############         Cleaning up            #########' && \
     emerge -c && \
