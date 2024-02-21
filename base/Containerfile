@@ -145,9 +145,6 @@ RUN \
     \
     echo '############         Post installation configurations            #########' && \
     \
-    echo '############         setting mg as default editor            #########' && \
-    eselect editor set mg && \
-    \
     echo '############         Cleaning up            #########' && \
     emerge -c && \
     distcc-config --set-hosts "localhost" && \
