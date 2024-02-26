@@ -1,0 +1,61 @@
+# syntax=docker/dockerfile:1
+
+ARG MICROARCH_LEVEL
+FROM ghcr.io/rahilarious/gentoo:x86-64-${MICROARCH_LEVEL}
+
+ARG BINHOST_URI
+ARG PKG_NAME="app-admin/vaultwarden"
+
+RUN \
+    --mount=type=tmpfs,tmpfs-size=100%,dst=/tmp \
+    --mount=type=tmpfs,tmpfs-size=100%,dst=/var/tmp \
+    --mount=type=tmpfs,tmpfs-size=100%,dst=/var/cache/edb \
+    <<-EOF
+#!/usr/bin/bash
+
+    set -e
+
+    if [ -n "${BINHOST_URI}" ]; then
+    echo '#####        Configuring binrepos.conf      ######'
+    cat <<-EOT | tee -a /etc/portage/binrepos.conf/gentoo-on-steroids.conf
+    [gentoo-on-steroids-binpkgserver]
+    priority=100
+    sync-uri=${BINHOST_URI}
+EOT
+    fi
+
+    USE="-cli -server sqlite mysql postgres web" emerge -vbgk --with-bdeps=y -o --quiet-build -X 'www-apps/vaultwarden-web' ${PKG_NAME}
+    USE="-cli -server sqlite mysql postgres web" emerge -vBgk --with-bdeps=y --quiet-build  -X 'www-apps/vaultwarden-web' ${PKG_NAME}
+    emerge -c
+    emerge -vgk --with-bdeps=n --quiet-build www-apps/vaultwarden-web-bin
+    USE="-cli -server sqlite mysql postgres web" emerge -vKg --with-bdeps=n --quiet-build  -X 'www-apps/vaultwarden-web' ${PKG_NAME}
+
+    # post install steps just for Container
+    mkdir -pv /data
+    mv -v /usr/bin/vaultwarden /vaultwarden
+    mv -v /usr/share/webapps/vaultwarden-web /web-vault
+
+    echo '############         Cleaning up            #########'
+    rm -rf /var/tmp/portage
+    truncate -s0 /etc/portage/binrepos.conf/gentoo-on-steroids.conf
+
+    echo '###########       CONGRATULATIONS !!! EVERYTHING SUCCESSFUL      #######'
+EOF
+
+# https://raw.githubusercontent.com/dani-garcia/vaultwarden/main/docker/Dockerfile.debian
+ENV ROCKET_PROFILE="release" \
+    ROCKET_ADDRESS=0.0.0.0 \
+    ROCKET_PORT=80
+
+VOLUME /data
+EXPOSE 80
+EXPOSE 3012
+
+WORKDIR /
+
+ADD --chmod=755 https://raw.githubusercontent.com/dani-garcia/vaultwarden/main/docker/start.sh /
+ADD --chmod=755 https://raw.githubusercontent.com/dani-garcia/vaultwarden/main/docker/healthcheck.sh /
+
+HEALTHCHECK --interval=60s --timeout=10s CMD ["/healthcheck.sh"]
+
+CMD ["/start.sh"]
