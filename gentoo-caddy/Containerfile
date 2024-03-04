@@ -9,6 +9,7 @@ COPY Caddyfile /etc/caddy/Caddyfile
 RUN \
     --mount=type=tmpfs,tmpfs-size=100%,dst=/tmp \
     --mount=type=tmpfs,tmpfs-size=100%,dst=/var/tmp \
+    --mount=type=tmpfs,tmpfs-size=100%,dst=/var/cache/edb \
     \
     if [ -n "${BINHOST_URI}" ]; then \
       echo '#####        Configuring binrepos.conf      ######' && \

@@ -10,6 +10,7 @@ COPY patches /etc/portage/patches/
 RUN \
     --mount=type=tmpfs,tmpfs-size=100%,dst=/tmp \
     --mount=type=tmpfs,tmpfs-size=100%,dst=/var/tmp \
+    --mount=type=tmpfs,tmpfs-size=100%,dst=/var/cache/edb \
     <<-EOF
 #!/usr/bin/bash
 
