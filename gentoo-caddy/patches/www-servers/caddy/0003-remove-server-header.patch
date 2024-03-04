@@ -1,0 +1,14 @@
+--- caddy-2.7.6/modules/caddyhttp/server.go
++++ mycaddy/modules/caddyhttp/server.go
+@@ -254,11 +254,10 @@
+ 				*r.TLS = csc.ConnectionState()
+ 			}
+ 		}
+ 	}
+ 
+-	w.Header().Set("Server", "Caddy")
+ 
+ 	// advertise HTTP/3, if enabled
+ 	if s.h3server != nil {
+ 		// keep track of active requests for QUIC transport purposes
+ 		atomic.AddInt64(&s.activeRequests, 1)
