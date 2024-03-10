@@ -5,6 +5,7 @@ FROM ghcr.io/rahilarious/gentoo:x86-64-${MICROARCH_LEVEL}
 
 ARG BINHOST_URI
 ARG PKG_NAME="net-irc/thelounge"
+ADD https://github.com/thelounge/thelounge-docker/raw/master/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 
 RUN \
     --mount=type=tmpfs,tmpfs-size=100%,dst=/tmp \
@@ -30,6 +31,7 @@ RUN \
 
     # post install steps just for Container
     useradd -m -u 1000 -U node
+    chmod -v 755 /usr/local/bin/docker-entrypoint.sh
 
     echo '############         Cleaning up            #########'
     rm -rf /var/tmp/portage
@@ -39,10 +41,9 @@ RUN \
 EOF
 
 # https://github.com/thelounge/thelounge-docker/blob/master/Dockerfile
-ENV NODE_ENV=production THELOUNGE_HOME=/var/opt/thelounge PORT=9000
+ENV THELOUNGE_HOME=/var/opt/thelounge PORT=9000
 VOLUME "${THELOUNGE_HOME}"
 EXPOSE ${PORT}
 
-ADD https://github.com/thelounge/thelounge-docker/raw/master/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["thelounge", "start"]
