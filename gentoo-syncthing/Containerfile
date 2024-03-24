@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1
+
 ARG MICROARCH_LEVEL
 FROM ghcr.io/rahilarious/gentoo:x86-64-${MICROARCH_LEVEL}
 
@@ -8,28 +10,31 @@ RUN \
     --mount=type=tmpfs,tmpfs-size=100%,dst=/tmp \
     --mount=type=tmpfs,tmpfs-size=100%,dst=/var/tmp \
     --mount=type=tmpfs,tmpfs-size=100%,dst=/var/cache/edb \
-    \
-    if [ -n "${BINHOST_URI}" ]; then \
-      echo '#####        Configuring binrepos.conf      ######' && \
-      { \
-        echo '[gentoo-on-steroids-binpkgserver]'; \
-        echo "priority=100"; \
-        echo "sync-uri=${BINHOST_URI}"; \
-      } | tee -a /etc/portage/binrepos.conf/gentoo-on-steroids.conf; \
-    fi && \
-    \
-    emerge -vbgk --with-bdeps=y -o --quiet-build ${PKG_NAME} && \
-    emerge -vBgk --with-bdeps=y --quiet-build ${PKG_NAME} && \
-    emerge -c && \
-    emerge -vKg --with-bdeps=n --quiet-build ${PKG_NAME} && \
-    \
-    echo '############         Cleaning up            #########' && \
-    rm -rf /var/tmp/portage && \
-    rm /var/log/emerge.log /var/log/portage/elog/summary.log && \
-    truncate -s0 /var/log/emerge* /etc/portage/binrepos.conf/gentoo-on-steroids.conf && \
-    \
-    echo '###########       CONGRATULATIONS !!! EVERYTHING SUCCESSFUL      #######'
+    <<-EOF
+    #!/usr/bin/bash
 
+    set -e
+
+    if [ -n "${BINHOST_URI}" ]; then
+    echo '#####        Configuring binrepos.conf      ######'
+    cat <<-EOT | tee -a /etc/portage/binrepos.conf/gentoo-on-steroids.conf
+	[gentoo-on-steroids-binpkgserver]
+	priority=100
+	sync-uri=${BINHOST_URI}
+	EOT
+    fi
+
+    emerge -vbgk --with-bdeps=y -o --quiet-build ${PKG_NAME}
+    emerge -vBgk --with-bdeps=y --quiet-build ${PKG_NAME}
+    emerge -c
+    emerge -vKg --with-bdeps=n --quiet-build ${PKG_NAME}
+
+    echo '############         Cleaning up            #########'
+    rm -rf /var/tmp/portage
+    truncate -s0 /etc/portage/binrepos.conf/gentoo-on-steroids.conf
+
+    echo '###########       CONGRATULATIONS !!! EVERYTHING SUCCESSFUL      #######'
+EOF
 
 ENV STGUIADDRESS=0.0.0.0:8384
 ENV STHOMEDIR=/var/syncthing/config
