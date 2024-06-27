@@ -18,7 +18,7 @@ RUN \
       } | tee -a /etc/portage/binrepos.conf/gentoo-on-steroids.conf; \
     fi && \
     \
-    emerge -vbgk --quiet-build ${PKG_NAME} && \
+    emerge -vbgk --quiet-build ${PKG_NAME} ${PKG_NAME}:17/17 && \
     \
     echo 'Distcc client is not needed so removing it...' && \
     rm /etc/portage/make.conf/distcc && \

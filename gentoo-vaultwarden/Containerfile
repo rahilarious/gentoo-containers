@@ -25,10 +25,10 @@ EOT
 
     echo "www-apps/vaultwarden-web nvtmp" | tee -a /etc/portage/package.env/vw
 
-    MAKEOPTS="-j2 -l8" USE="-cli -server sqlite mysql postgres web" emerge -vbgk --with-bdeps=y -o  ${PKG_NAME}
-    USE="-cli -server sqlite mysql postgres web" emerge -vBgk --with-bdeps=y  ${PKG_NAME}
+    MAKEOPTS="-j2 -l8" USE="-cli -server sqlite mysql postgres web" emerge -vbgk --with-bdeps=y -o -X www-apps/vaultwarden-web  ${PKG_NAME}
+    USE="-cli -server sqlite mysql postgres web" emerge -vBgk --with-bdeps=y -X www-apps/vaultwarden-web  ${PKG_NAME}
     emerge -c
-    USE="-cli -server sqlite mysql postgres web" emerge -vKg --with-bdeps=n ${PKG_NAME}
+    USE="-cli -server sqlite mysql postgres web" emerge -vKg --with-bdeps=n -X www-apps/vaultwarden-web ${PKG_NAME}
 
     # post install steps just for Container
     mkdir -pv /data

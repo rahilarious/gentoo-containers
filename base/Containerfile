@@ -1,4 +1,4 @@
-FROM localhost/gentoo/stage3:nomultilib-systemd-merged
+FROM localhost/gentoo/stage3:nomultilib-systemd
 
 ARG BINHOST_URI
 ARG LOCAL_MIRROR
@@ -22,7 +22,7 @@ RUN \
       echo "RUSTFLAGS='-C target-cpu=x86-64-${MICROARCH_LEVEL} -C strip=symbols -C opt-level=2'"; \
       echo "FEATURES='${PORTAGE_FEATURES}'"; \
       echo 'ACCEPT_KEYWORDS="~${ARCH}"'; \
-      echo "GENTOO_MIRRORS='${LOCAL_MIRROR} http://ftp.fau.de/gentoo http://ftp.snt.utwente.nl/pub/os/linux/gentoo http://ftp-stud.hs-esslingen.de/pub/Mirrors/gentoo/ http://distfiles.gentoo.org'"; \
+      echo "GENTOO_MIRRORS='${LOCAL_MIRROR} http://distfiles.gentoo.org'"; \
       echo "CPU_FLAGS_X86='${PORTAGE_CPU_FLAGS}'"; \
       echo "USE='lto jit -iptables nftables pgo -smartcard tofu graphite'"; \
       echo 'BINPKG_FORMAT="gpkg"'; \
@@ -73,11 +73,11 @@ RUN \
     fi && \
     \
     echo '#####        Adding hardened profile      ######' && \
-    echo '../../../../../../../features/hardened/amd64/no-multilib' | tee -a /var/db/repos/gentoo/profiles/default/linux/amd64/17.1/no-multilib/systemd/merged-usr/parent && \
+    echo '../../../../../../features/hardened/amd64/no-multilib' | tee -a /var/db/repos/gentoo/profiles/default/linux/amd64/23.0/no-multilib/systemd/parent && \
     \
     echo '#######      Update portage & toolchain if necessary       ######' && \
     emerge -v --quiet-build -gkb1u sys-apps/portage && \
-    emerge -vgkbu1 --quiet-build sys-libs/glibc sys-devel/gcc sys-devel/binutils sys-kernel/linux-headers && \
+    emerge -vgkbu1 --quiet-build sys-libs/glibc sys-devel/gcc sys-devel/binutils sys-kernel/linux-headers -X 'sys-devel/gcc:13' && \
     emerge -c sys-devel/binutils sys-devel/gcc ; \
     \
     emerge -vgkbn1 --quiet-build sys-devel/distcc && \
@@ -143,7 +143,7 @@ RUN \
     emerge -c ; \
     \
     echo '############         Rebuilding whole stage3            #########' && \
-    emerge -vgkb --quiet-build --with-bdeps=y -e @world && \
+    emerge -vgkb --quiet-build --with-bdeps=y -e @world -X 'sys-devel/gcc:13' && \
     \
     echo '############         Post installation configurations            #########' && \
     \
@@ -163,7 +163,7 @@ RUN \
 
 
 LABEL \
-    org.opencontainers.image.description="Gentoo with ~amd64, -march=x86-64-${MICROARCH_LEVEL}, nomultilib-systemd-merged-usr + hardened profile and few added utilities" \
+    org.opencontainers.image.description="Gentoo with ~amd64, -march=x86-64-${MICROARCH_LEVEL}, nomultilib-systemd + hardened profile and few added utilities" \
     org.opencontainers.image.title='Gentoo on Steroids' \
     org.opencontainers.image.source='https://github.com/rahilarious/gentoo-containers' \
     org.opencontainers.image.url='https://github.com/rahilarious/gentoo-containers' \
