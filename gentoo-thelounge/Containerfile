@@ -24,10 +24,10 @@ RUN \
 	EOT
     fi
 
-    emerge -vbgk --with-bdeps=y -o --quiet-build ${PKG_NAME}
-    emerge -vBgk --with-bdeps=y --quiet-build  ${PKG_NAME}
+    USE=npm emerge -vbgk --with-bdeps=y -o --quiet-build ${PKG_NAME}
+    USE=npm emerge -vBgk --with-bdeps=y --quiet-build  ${PKG_NAME}
     emerge -c
-    emerge -vKg --with-bdeps=n --quiet-build ${PKG_NAME}
+    USE=npm emerge -vKg --with-bdeps=n --quiet-build ${PKG_NAME}
 
     # post install steps just for Container
     useradd -m -u 1000 -U node

@@ -2,7 +2,6 @@ ARG MICROARCH_LEVEL
 FROM ghcr.io/rahilarious/gentoo:x86-64-${MICROARCH_LEVEL}
 
 ARG BINHOST_URI
-ARG PKG_NAME="sys-devel/clang"
 
 RUN \
     --mount=type=tmpfs,tmpfs-size=100%,dst=/tmp \
@@ -18,16 +17,13 @@ RUN \
       } | tee -a /etc/portage/binrepos.conf/gentoo-on-steroids.conf; \
     fi && \
     \
-    emerge -vbgk --quiet-build ${PKG_NAME} ${PKG_NAME}:17/17 && \
-    \
     echo 'Distcc client is not needed so removing it...' && \
     rm /etc/portage/make.conf/distcc && \
     sed -i -e '/distcc/Id' /etc/profile.d/01-gentoo-base.sh && \
     \
     echo '############         Cleaning up            #########' && \
     rm -rf /var/tmp/portage && \
-    rm /var/log/emerge.log /var/log/portage/elog/summary.log && \
-    truncate -s0 /var/log/emerge* /etc/portage/binrepos.conf/gentoo-on-steroids.conf && \
+    truncate -s0 /var/log/{portage/elog/summary.log,emerge.log,emerge-fetch.log} /etc/portage/binrepos.conf/gentoo-on-steroids.conf && \
     \
     echo '###########       CONGRATULATIONS !!! EVERYTHING SUCCESSFUL      #######'
 

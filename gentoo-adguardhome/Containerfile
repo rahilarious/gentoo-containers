@@ -28,7 +28,7 @@ RUN \
     emerge -vBgk --with-bdeps=y --quiet-build ${PKG_NAME}
     emerge -c
     emerge -vKg --with-bdeps=n --quiet-build ${PKG_NAME}
-    mkdir -pv /opt/adguardhome/{,conf,work}
+    mkdir -pv /opt/adguardhome/{conf,work}
     chown -R nobody: /opt/adguardhome
     chown nobody:nogroup /usr/bin/AdGuardHome
     ln -sv /usr/bin/AdGuardHome /opt/adguardhome/AdGuardHome

@@ -31,9 +31,10 @@ cd ${CURRENT_DIR}
 STAGE3_LATEST_BUILD_ID=$(curl -sL https://bouncer.gentoo.org/fetch/root/all/releases/amd64//autobuilds/latest-stage3-amd64-nomultilib-systemd.txt | gpg -d 2>/dev/null | tail -n1 | awk -F\/ '{print $1;}')
 wget -c https://bouncer.gentoo.org/fetch/root/all/releases/amd64/autobuilds/"${STAGE3_LATEST_BUILD_ID}"/stage3-amd64-nomultilib-systemd-"${STAGE3_LATEST_BUILD_ID}".tar.xz{,.asc}
 gpg --verify stage3-amd64-nomultilib-systemd-"${STAGE3_LATEST_BUILD_ID}".tar.xz.asc
+[[ -f stage3-amd64-nomultilib-systemd-"${STAGE3_LATEST_BUILD_ID}".tar ]] ||  xzdec $(find -type f -name 'stage3*xz' 2> /dev/null | tail -n1) > stage3-amd64-nomultilib-systemd-"${STAGE3_LATEST_BUILD_ID}".tar
 wait_for_5 import
 
-time doas podman import -c 'CMD ["/usr/bin/bash"]' $(find -type f -name 'stage3*xz' 2> /dev/null | tail -n1) gentoo/stage3:nomultilib-systemd
+time doas podman import -c 'CMD ["/usr/bin/bash"]' stage3-amd64-nomultilib-systemd-"${STAGE3_LATEST_BUILD_ID}".tar gentoo/stage3:nomultilib-systemd
 wait_for_5 build
 time doas podman build --squash-all \
      -f ${CURRENT_DIR}/Containerfile \

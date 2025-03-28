@@ -26,7 +26,7 @@ RUN \
 	EOT
     fi
 
-    mkdir -pv /srv /config/caddy /data/caddy
+    mkdir -pv /srv /{config,data,etc,usr/share}/caddy
     chown -v -R 297:297 /srv /config/ /data
     emerge -vbgk --with-bdeps=y -o --quiet-build ${PKG_NAME}
     emerge -vBgk --with-bdeps=y --quiet-build ${PKG_NAME}
@@ -44,6 +44,13 @@ EOF
 # See https://caddyserver.com/docs/conventions#file-locations for details
 ENV XDG_CONFIG_HOME /config
 ENV XDG_DATA_HOME /data
+
+EXPOSE 80
+EXPOSE 443
+EXPOSE 443/udp
+EXPOSE 2019
+
+WORKDIR /srv
 
 VOLUME [ "/config/", "/data/", "/srv" ]
 CMD [  "/usr/bin/caddy", "run", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile" ]

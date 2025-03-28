@@ -69,7 +69,7 @@ RUN \
     \
     if [ -f /etc/portage/repos.conf ]; then \
       echo '#####        Removing repos.conf      #####' && \
-      rm /etc/portage/repos.conf; \
+      rm -v /etc/portage/repos.conf; \
     fi && \
     \
     echo '#####        Adding hardened profile      ######' && \
@@ -77,7 +77,7 @@ RUN \
     \
     echo '#######      Update portage & toolchain if necessary       ######' && \
     emerge -v --quiet-build -gkb1u sys-apps/portage && \
-    emerge -vgkbu1 --quiet-build sys-libs/glibc sys-devel/gcc sys-devel/binutils sys-kernel/linux-headers -X 'sys-devel/gcc:13' && \
+    emerge -vgkbu1 --quiet-build sys-libs/glibc sys-devel/gcc sys-devel/binutils sys-kernel/linux-headers -X '' && \
     emerge -c sys-devel/binutils sys-devel/gcc ; \
     \
     emerge -vgkbn1 --quiet-build sys-devel/distcc && \
@@ -130,8 +130,8 @@ RUN \
     \
     ansible-playbook -l currenthost local.yml && \
     \
-    mv /etc/portage/default-make.conf /etc/portage/builder-make.conf && \
-    mv /etc/portage/original-make.conf /etc/portage/default-make.conf && \
+    mv -v /etc/portage/default-make.conf /etc/portage/builder-make.conf && \
+    mv -v /etc/portage/original-make.conf /etc/portage/default-make.conf && \
     if [ ! -d /var/db/repos/gentoo/.git ]; then \
       echo '#####        Found rsynced Gentoo repo      #####' && \
       echo '####       Switching to git Gentoo repo      #####' && \
@@ -143,7 +143,7 @@ RUN \
     emerge -c ; \
     \
     echo '############         Rebuilding whole stage3            #########' && \
-    emerge -vgkb --quiet-build --with-bdeps=y -e @world -X 'sys-devel/gcc:13' && \
+    emerge -vgkb --quiet-build --with-bdeps=y -e @world -X '' && \
     \
     echo '############         Post installation configurations            #########' && \
     \
