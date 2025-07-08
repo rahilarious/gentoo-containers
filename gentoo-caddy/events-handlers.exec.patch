@@ -1,5 +1,5 @@
 diff --git a/.scripts/modules/build-images.sh b/.scripts/modules/build-images.sh
-index e6e53ed..4bac0e5 100644
+index 1e4b118..64af081 100644
 --- a/.scripts/modules/build-images.sh
 +++ b/.scripts/modules/build-images.sh
 @@ -4,7 +4,7 @@ time doas podman build $(if [[ -z ${ENABLE_CACHE} ]]; then echo '--no-cache'; fi
@@ -8,78 +8,78 @@ index e6e53ed..4bac0e5 100644
       -v ${HOST_BINPKGS_DIR}:/var/cache/binpkgs \
 -     -t ${MAIN_REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH} \
 +     -t ${MAIN_REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-with-events-handlers-exec \
-      --build-arg MICROARCH_LEVEL="${LEVEL_MICROARCH}" \
+      --build-arg=MICROARCH_LEVEL="${LEVEL_MICROARCH}" \
       --build-arg=BINHOST_URI="${URI_BINHOST}" \
  
 diff --git a/.scripts/modules/push-images.sh b/.scripts/modules/push-images.sh
-index 1e51b23..83d3c20 100644
+index 524531f..b3c1762 100644
 --- a/.scripts/modules/push-images.sh
 +++ b/.scripts/modules/push-images.sh
 @@ -4,7 +4,7 @@ if [[ -z ${DISABLE_PUSH} ]]; then
  	echo "##########      Pushing ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}         ############"
  
  	### PUSH BASE TAG
--	doas podman push ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}
-+	doas podman push ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-with-events-handlers-exec
+-	doas podman push ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH} && echo "### Pushed ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH} ###"
++	doas podman push ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-with-events-handlers-exec && echo "### Pushed ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH} ###"
  
  	### PUSH EXTRA TAG(s)
  	if [[ -n ${EXTRA_TAG} ]]; then
 diff --git a/.scripts/modules/tag-images.sh b/.scripts/modules/tag-images.sh
-index c2506ba..b695155 100644
+index b65191b..c0bd5fc 100644
 --- a/.scripts/modules/tag-images.sh
 +++ b/.scripts/modules/tag-images.sh
 @@ -3,20 +3,20 @@ do
      echo "##########       Tagging ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}         ############"
  
      ### TAG BASE
--    [[ ${REGISTRY_WITH_USERNAME} != ${MAIN_REGISTRY_WITH_USERNAME} ]] && doas podman tag ${MAIN_REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH} ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}
-+    [[ ${REGISTRY_WITH_USERNAME} != ${MAIN_REGISTRY_WITH_USERNAME} ]] && doas podman tag ${MAIN_REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-with-events-handlers-exec ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-with-events-handlers-exec
+-    [[ ${REGISTRY_WITH_USERNAME} != ${MAIN_REGISTRY_WITH_USERNAME} ]] && doas podman tag ${MAIN_REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH} ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH} && echo "### Tagged ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH} ###"
++    [[ ${REGISTRY_WITH_USERNAME} != ${MAIN_REGISTRY_WITH_USERNAME} ]] && doas podman tag ${MAIN_REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-with-events-handlers-exec ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-with-events-handlers-exec && echo "### Tagged ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH} ###"
  
      ### TAG EXTRA(s)
      if [[ -n ${EXTRA_TAG} ]]
      then
--	doas podman tag ${MAIN_REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH} ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG}
--	doas podman tag ${MAIN_REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH} ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG}-${BUILD_TAG}
-+	doas podman tag ${MAIN_REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-with-events-handlers-exec ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG}
-+	doas podman tag ${MAIN_REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-with-events-handlers-exec ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG}-${BUILD_TAG}
+-	doas podman tag ${MAIN_REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH} ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG} && echo "### Tagged ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG} ###"
+-	doas podman tag ${MAIN_REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH} ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG}-${BUILD_TAG} && echo "### Tagged ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG}-${BUILD_TAG} ###"
++	doas podman tag ${MAIN_REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-with-events-handlers-exec ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG} && echo "### Tagged ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG} ###"
++	doas podman tag ${MAIN_REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-with-events-handlers-exec ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG}-${BUILD_TAG} && echo "### Tagged ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG}-${BUILD_TAG} ###"
  	if [[ -n ${IS_SEMVER} ]]; then
--	    doas podman tag ${MAIN_REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH} ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG%.*}
--	    doas podman tag ${MAIN_REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH} ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG%.*}-${BUILD_TAG}
--	    doas podman tag ${MAIN_REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH} ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG%%.*}
--	    doas podman tag ${MAIN_REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH} ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG%%.*}-${BUILD_TAG}
-+	    doas podman tag ${MAIN_REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-with-events-handlers-exec ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG%.*}
-+	    doas podman tag ${MAIN_REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-with-events-handlers-exec ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG%.*}-${BUILD_TAG}
-+	    doas podman tag ${MAIN_REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-with-events-handlers-exec ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG%%.*}
-+	    doas podman tag ${MAIN_REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-with-events-handlers-exec ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG%%.*}-${BUILD_TAG}
+-	    doas podman tag ${MAIN_REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH} ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG%.*} && echo "### Tagged ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG%.*} ###"
+-	    doas podman tag ${MAIN_REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH} ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG%.*}-${BUILD_TAG} && echo "### Tagged ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG%.*}-${BUILD_TAG} ###"
+-	    doas podman tag ${MAIN_REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH} ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG%%.*} && echo "### Tagged ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG%%.*} ###"
+-	    doas podman tag ${MAIN_REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH} ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG%%.*}-${BUILD_TAG} && echo "### Tagged ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG%%.*}-${BUILD_TAG} ###"
++	    doas podman tag ${MAIN_REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-with-events-handlers-exec ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG%.*} && echo "### Tagged ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG%.*} ###"
++	    doas podman tag ${MAIN_REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-with-events-handlers-exec ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG%.*}-${BUILD_TAG} && echo "### Tagged ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG%.*}-${BUILD_TAG} ###"
++	    doas podman tag ${MAIN_REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-with-events-handlers-exec ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG%%.*} && echo "### Tagged ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG%%.*} ###"
++	    doas podman tag ${MAIN_REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-with-events-handlers-exec ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG%%.*}-${BUILD_TAG} && echo "### Tagged ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG%%.*}-${BUILD_TAG} ###"
  	fi
      else
--	doas podman tag ${MAIN_REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH} ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${BUILD_TAG}
-+	doas podman tag ${MAIN_REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-with-events-handlers-exec ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-with-events-handlers-exec-${BUILD_TAG}
+-	doas podman tag ${MAIN_REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH} ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${BUILD_TAG} && echo "### Tagged ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${BUILD_TAG} ###"
++	doas podman tag ${MAIN_REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-with-events-handlers-exec ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${BUILD_TAG} && echo "### Tagged ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${BUILD_TAG} ###"
      fi
  done
 diff --git a/gentoo-caddy/Containerfile b/gentoo-caddy/Containerfile
-index 37c9b7d..b013d79 100644
+index 38b5864..1f12d59 100644
 --- a/gentoo-caddy/Containerfile
 +++ b/gentoo-caddy/Containerfile
 @@ -28,10 +28,10 @@ RUN \
  
-     mkdir -pv /srv /config/caddy /data/caddy
+     mkdir -pv /srv /{config,data,etc,usr/share}/caddy
      chown -v -R 297:297 /srv /config/ /data
 -    emerge -vbgk --with-bdeps=y -o --quiet-build ${PKG_NAME}
 -    emerge -vBgk --with-bdeps=y --quiet-build ${PKG_NAME}
-+    USE='events-handlers-exec' emerge -vbgk --with-bdeps=y -o --quiet-build ${PKG_NAME}
-+    USE='events-handlers-exec' emerge -vBgk --with-bdeps=y --quiet-build ${PKG_NAME}
++    USE="events-handlers-exec" emerge -vbgk --with-bdeps=y -o --quiet-build ${PKG_NAME}
++    USE="events-handlers-exec"    emerge -vBgk --with-bdeps=y --quiet-build ${PKG_NAME}
      emerge -c
 -    emerge -vKg --with-bdeps=n --quiet-build ${PKG_NAME}
-+    USE='events-handlers-exec' emerge -vKg --with-bdeps=n --quiet-build ${PKG_NAME}
++    USE="events-handlers-exec"    emerge -vKg --with-bdeps=n --quiet-build ${PKG_NAME}
      mv -v /usr/share/caddy/index.html /srv/index.html
  
      echo '############         Cleaning up            #########'
 diff --git a/gentoo-caddy/config.env b/gentoo-caddy/config.env
-index b5865a0..8966701 100644
+index e16e2bf..e4ad87e 100644
 --- a/gentoo-caddy/config.env
 +++ b/gentoo-caddy/config.env
 @@ -1,2 +1,2 @@
--EXTRA_TAG="caddy-2.7.6"
-+EXTRA_TAG="with-events-handlers-exec-2.7.6"
+-EXTRA_TAG="caddy-2.10.0"
++EXTRA_TAG="with-events-handlers-exec-2.10.0"
  IS_SEMVER=yes
