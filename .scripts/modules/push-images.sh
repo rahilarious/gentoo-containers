@@ -4,20 +4,20 @@ if [[ -z ${DISABLE_PUSH} ]]; then
 	echo "##########      Pushing ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}         ############"
 
 	### PUSH BASE TAG
-	doas podman push ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}
+	doas podman push ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH} && echo "### Pushed ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH} ###"
 
 	### PUSH EXTRA TAG(s)
 	if [[ -n ${EXTRA_TAG} ]]; then
-	    doas podman push ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG}
-	    doas podman push ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG}-${BUILD_TAG}
+	    doas podman push ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG} && echo "### Pushed ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG} ###"
+	    doas podman push ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG}-${BUILD_TAG} && echo "### Pushed ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG}-${BUILD_TAG} ###"
 	    if [[ -n ${IS_SEMVER} ]]; then
-		doas podman push ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG%.*}
-		doas podman push ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG%.*}-${BUILD_TAG}
-		doas podman push ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG%%.*}
-		doas podman push ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG%%.*}-${BUILD_TAG}
+		doas podman push ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG%.*} && echo "### Pushed ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG%.*} ###"
+		doas podman push ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG%.*}-${BUILD_TAG} && echo "### Pushed ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG%.*}-${BUILD_TAG} ###"
+		doas podman push ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG%%.*} && echo "### Pushed ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG%%.*} ###"
+		doas podman push ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG%%.*}-${BUILD_TAG} && echo "### Pushed ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${EXTRA_TAG%%.*}-${BUILD_TAG} ###"
 	    fi
 	else
-	    doas podman push ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${BUILD_TAG}
+	    doas podman push ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${BUILD_TAG} && echo "### Pushed ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-${BUILD_TAG}  ###"
 	fi
     done
 else
