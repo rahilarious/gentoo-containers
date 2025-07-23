@@ -2,7 +2,7 @@ ARG MICROARCH_LEVEL
 FROM ghcr.io/rahilarious/gentoo:x86-64-${MICROARCH_LEVEL}
 
 ARG BINHOST_URI
-ARG PKG_NAME="dev-db/redis"
+ARG PKG_NAME="dev-db/redis:0/7.4"
 COPY patches /etc/portage/patches/
 
 RUN \
