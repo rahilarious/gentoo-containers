@@ -7,25 +7,17 @@ RUN \
     --mount=type=tmpfs,tmpfs-size=100%,dst=/tmp \
     --mount=type=tmpfs,tmpfs-size=100%,dst=/var/tmp \
     --mount=type=tmpfs,tmpfs-size=100%,dst=/var/cache/edb \
-    \
-    if [ -n "${BINHOST_URI}" ]; then \
-      echo '#####        Configuring binrepos.conf      ######' && \
-      { \
-        echo '[gentoo-on-steroids-binpkgserver]'; \
-        echo "priority=100"; \
-        echo "sync-uri=${BINHOST_URI}"; \
-      } | tee -a /etc/portage/binrepos.conf/gentoo-on-steroids.conf; \
-    fi && \
-    \
-    echo 'Distcc client is not needed so removing it...' && \
-    rm /etc/portage/make.conf/distcc && \
-    sed -i -e '/distcc/Id' /etc/profile.d/01-gentoo-base.sh && \
-    \
-    echo '############         Cleaning up            #########' && \
-    rm -rf /var/tmp/portage && \
-    truncate -s0 /var/log/{portage/elog/summary.log,emerge.log,emerge-fetch.log} /etc/portage/binrepos.conf/gentoo-on-steroids.conf && \
-    \
+    <<-EOF
+    #!/usr/bin/bash
+
+    set -e
+
+    echo 'Distcc client is not needed so removing it...'
+    rm -v /etc/portage/make.conf/distcc
+    sed -i -e '/distcc/Id' /etc/profile.d/01-gentoo-base.sh
+
     echo '###########       CONGRATULATIONS !!! EVERYTHING SUCCESSFUL      #######'
+EOF
 
 CMD \
     source /etc/profile && \

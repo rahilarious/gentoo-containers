@@ -1,14 +1,15 @@
---- caddy-2.7.6/modules/caddyhttp/server.go
-+++ mycaddy/modules/caddyhttp/server.go
-@@ -254,11 +254,10 @@
- 				*r.TLS = csc.ConnectionState()
- 			}
+diff --git a/modules/caddyhttp/server.go b/modules/caddyhttp/server.go
+index 0479af8..a5030c8 100644
+--- a/modules/caddyhttp/server.go
++++ b/modules/caddyhttp/server.go
+@@ -328,10 +328,6 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
  		}
  	}
  
--	w.Header().Set("Server", "Caddy")
- 
+-	// set the Server header
+-	h := w.Header()
+-	h["Server"] = serverHeader
+-
  	// advertise HTTP/3, if enabled
- 	if s.h3server != nil {
- 		// keep track of active requests for QUIC transport purposes
- 		atomic.AddInt64(&s.activeRequests, 1)
+ 	if s.h3server != nil && r.ProtoMajor < 3 {
+ 		if err := s.h3server.SetQUICHeaders(h); err != nil {

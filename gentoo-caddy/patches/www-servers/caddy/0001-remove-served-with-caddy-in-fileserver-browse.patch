@@ -1,6 +1,8 @@
+diff --git a/modules/caddyhttp/fileserver/browse.html b/modules/caddyhttp/fileserver/browse.html
+index 5d9dc7d..8fe09c9 100644
 --- a/modules/caddyhttp/fileserver/browse.html
 +++ b/modules/caddyhttp/fileserver/browse.html
-@@ -1008,83 +1008,6 @@ footer {
+@@ -1098,83 +1098,6 @@ footer {
  			</div>
  			</main>
  		</div>
@@ -82,5 +84,5 @@
 -		</footer>
 -
  		<script {{ $nonceAttribute }}>
+ 			// @license magnet:?xt=urn:btih:8e4f440f4c65981c5bf93c76d35135ba5064d8b7&dn=apache-2.0.txt Apache-2.0
  			const filterEl = document.getElementById('filter');
- 			filterEl?.focus({ preventScroll: true });

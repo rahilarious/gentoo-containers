@@ -1,24 +1,8 @@
-# https://github.com/docker-library/redis/blob/master/7.2/bookworm/Dockerfile#L61
---- a/src/config.c
-+++ b/src/config.c
-@@ -3051,11 +3051,11 @@
-     /* Bool configs */
-     createBoolConfig("rdbchecksum", NULL, IMMUTABLE_CONFIG, server.rdb_checksum, 1, NULL, NULL),
-     createBoolConfig("daemonize", NULL, IMMUTABLE_CONFIG, server.daemonize, 0, NULL, NULL),
-     createBoolConfig("io-threads-do-reads", NULL, DEBUG_CONFIG | IMMUTABLE_CONFIG, server.io_threads_do_reads, 0,NULL, NULL), /* Read + parse from threads? */
-     createBoolConfig("always-show-logo", NULL, IMMUTABLE_CONFIG, server.always_show_logo, 0, NULL, NULL),
--    createBoolConfig("protected-mode", NULL, MODIFIABLE_CONFIG, server.protected_mode, 1, NULL, NULL),
-+    createBoolConfig("protected-mode", NULL, MODIFIABLE_CONFIG, server.protected_mode, 0, NULL, NULL),
-     createBoolConfig("rdbcompression", NULL, MODIFIABLE_CONFIG, server.rdb_compression, 1, NULL, NULL),
-     createBoolConfig("rdb-del-sync-files", NULL, MODIFIABLE_CONFIG, server.rdb_del_sync_files, 0, NULL, NULL),
-     createBoolConfig("activerehashing", NULL, MODIFIABLE_CONFIG, server.activerehashing, 1, NULL, NULL),
-     createBoolConfig("stop-writes-on-bgsave-error", NULL, MODIFIABLE_CONFIG, server.stop_writes_on_bgsave_err, 1, NULL, NULL),
-     createBoolConfig("set-proc-title", NULL, IMMUTABLE_CONFIG, server.set_proc_title, 1, NULL, NULL), /* Should setproctitle be used? */
+diff --git a/redis.conf b/redis.conf
+index 9151c8f..1e25ccf 100644
 --- a/redis.conf
 +++ b/redis.conf
-@@ -106,11 +106,11 @@
- # (::1) or Unix domain sockets.
- #
+@@ -109,7 +109,7 @@ bind 127.0.0.1 -::1
  # By default protected mode is enabled. You should disable it only if
  # you are sure you want clients from other hosts to connect to Redis
  # even if no authentication is configured.
@@ -27,5 +11,16 @@
  
  # Redis uses default hardened security configuration directives to reduce the
  # attack surface on innocent users. Therefore, several sensitive configuration
- # directives are immutable, and some potentially-dangerous commands are blocked.
- #
+diff --git a/src/config.c b/src/config.c
+index 97fa58a..883cb82 100644
+--- a/src/config.c
++++ b/src/config.c
+@@ -3163,7 +3163,7 @@ standardConfig static_configs[] = {
+     createBoolConfig("rdbchecksum", NULL, IMMUTABLE_CONFIG, server.rdb_checksum, 1, NULL, NULL),
+     createBoolConfig("daemonize", NULL, IMMUTABLE_CONFIG, server.daemonize, 0, NULL, NULL),
+     createBoolConfig("always-show-logo", NULL, IMMUTABLE_CONFIG, server.always_show_logo, 0, NULL, NULL),
+-    createBoolConfig("protected-mode", NULL, MODIFIABLE_CONFIG, server.protected_mode, 1, NULL, NULL),
++    createBoolConfig("protected-mode", NULL, MODIFIABLE_CONFIG, server.protected_mode, 0, NULL, NULL),
+     createBoolConfig("rdbcompression", NULL, MODIFIABLE_CONFIG, server.rdb_compression, 1, NULL, NULL),
+     createBoolConfig("rdb-del-sync-files", NULL, MODIFIABLE_CONFIG, server.rdb_del_sync_files, 0, NULL, NULL),
+     createBoolConfig("activerehashing", NULL, MODIFIABLE_CONFIG, server.activerehashing, 1, NULL, NULL),

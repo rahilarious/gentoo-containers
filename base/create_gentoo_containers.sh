@@ -28,30 +28,44 @@ wait_for_5() {
 #### CODE
 cd ${CURRENT_DIR}
 
-STAGE3_LATEST_BUILD_ID=$(curl -sL https://bouncer.gentoo.org/fetch/root/all/releases/amd64//autobuilds/latest-stage3-amd64-nomultilib-systemd.txt | gpg -d 2>/dev/null | tail -n1 | awk -F\/ '{print $1;}')
+[[ -z {STAGE3_LATEST_BUILD_ID} ]] && \
+    STAGE3_LATEST_BUILD_ID=$(curl -sL https://bouncer.gentoo.org/fetch/root/all/releases/amd64//autobuilds/latest-stage3-amd64-nomultilib-systemd.txt | gpg -d 2>/dev/null | tail -n1 | awk -F\/ '{print $1;}')
 [[ -f stage3-amd64-nomultilib-systemd-"${STAGE3_LATEST_BUILD_ID}".tar ]] || {
     wget2 -c https://bouncer.gentoo.org/fetch/root/all/releases/amd64/autobuilds/"${STAGE3_LATEST_BUILD_ID}"/stage3-amd64-nomultilib-systemd-"${STAGE3_LATEST_BUILD_ID}".tar.xz{,.asc}
     gpg --verify stage3-amd64-nomultilib-systemd-"${STAGE3_LATEST_BUILD_ID}".tar.xz.asc
     unxz -v stage3-amd64-nomultilib-systemd-"${STAGE3_LATEST_BUILD_ID}".tar.xz
 }
-wait_for_5 import
 
-time doas podman import -c 'CMD ["/usr/bin/bash"]' stage3-amd64-nomultilib-systemd-"${STAGE3_LATEST_BUILD_ID}".tar gentoo/stage3:nomultilib-systemd
+
+[[ -z ${SKIP_IMPORT} ]] && { wait_for_5 import; \
+			     time doas podman import -c 'CMD ["/usr/bin/bash"]' stage3-amd64-nomultilib-systemd-"${STAGE3_LATEST_BUILD_ID}".tar gentoo/stage3:nomultilib-systemd; }
+
 wait_for_5 build
-time doas podman build --squash-all \
-     -f ${CURRENT_DIR}/Containerfile \
-     -v ${HOST_GENTOO_REPO_DIR}:/var/db/repos/gentoo \
-     -v ${HOST_GURU_REPO_DIR}:/var/db/repos/guru \
-     -v ${HOST_DIST_DIR}:/var/cache/distfiles \
-     -v ${HOST_BINPKGS_DIR}:/var/cache/binpkgs \
-     -t ${MAIN_REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH} \
-     --build-arg MICROARCH_LEVEL="${LEVEL_MICROARCH}" \
-     --build-arg=LOCAL_MIRROR="${LOCAL_MIRROR}" \
-     --build-arg=ANSIBLE_REPO="${ANSIBLE_REPO}" \
-     --build-arg=DISTCC_SERVERS="${DISTCC_SERVERS}" \
-     --build-arg=PORTAGE_CPU_FLAGS="${CPU_FLAGS}" \
-     --build-arg=BINHOST_URI="${URI_BINHOST}" \
 
+doas buildah from \
+    --name base-build-ctr\
+    -v ${HOST_GENTOO_REPO_DIR}:/var/db/repos/gentoo \
+    -v ${HOST_GURU_REPO_DIR}:/var/db/repos/guru \
+    -v ${HOST_DIST_DIR}:/var/cache/distfiles \
+    -v ${HOST_BINPKGS_DIR}:/var/cache/binpkgs \
+    -v $(pwd)/build_script.sh:/build_script.sh \
+    docker://localhost/gentoo/stage3:nomultilib-systemd
+
+doas buildah run \
+    --mount=type=tmpfs,tmpfs-size=100%,dst=/tmp \
+    --mount=type=tmpfs,tmpfs-size=100%,dst=/var/tmp \
+    --mount=type=tmpfs,tmpfs-size=100%,dst=/var/cache/edb \
+    --env BINHOST_URI="${URI_BINHOST}" \
+    --env LOCAL_MIRROR="${LOCAL_MIRROR}" \
+    --env MICROARCH_LEVEL="${LEVEL_MICROARCH}" \
+    --env ANSIBLE_REPO="${ANSIBLE_REPO}" \
+    --env DISTCC_SERVERS="${DISTCC_SERVERS}" \
+    --env PORTAGE_CPU_FLAGS="${CPU_FLAGS}" \
+    --env SUBSTRACT_NO_OF_CPU_BY=1 \
+    --env PORTAGE_FEATURES='-pid-sandbox -network-sandbox -ipc-sandbox binpkg-ignore-signature' \
+    base-build-ctr /build_script.sh
+
+doas buildah commit --squash base-build-ctr ${MAIN_REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}
 
 source "${PARENT_DIR}"/.scripts/modules/tag-images.sh
 source "${PARENT_DIR}"/.scripts/modules/push-images.sh

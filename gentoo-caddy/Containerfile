@@ -52,5 +52,4 @@ EXPOSE 2019
 
 WORKDIR /srv
 
-VOLUME [ "/config/", "/data/", "/srv" ]
 CMD [  "/usr/bin/caddy", "run", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile" ]
