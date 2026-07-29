@@ -4,7 +4,7 @@ if [[ -z ${DISABLE_PUSH} ]]; then
 	echo "##########      Pushing ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}         ############"
 
 	### PUSH BASE TAG
-	doas podman push ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH} && echo "### Pushed ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH} ###"
+	doas podman push ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-with-events-handlers-exec && echo "### Pushed ${REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH} ###"
 
 	### PUSH EXTRA TAG(s)
 	if [[ -n ${EXTRA_TAG} ]]; then

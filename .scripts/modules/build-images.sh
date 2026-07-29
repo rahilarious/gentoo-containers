@@ -5,7 +5,7 @@ time doas podman build $(if [[ -z ${ENABLE_CACHE} ]]; then echo '--no-cache'; fi
      -v ${HOST_DIST_DIR}:/var/cache/distfiles \
      -v ${HOST_BINPKGS_DIR}:/var/cache/binpkgs \
      -v ${HOST_BINHOST_DIR}:/var/cache/binhost \
-     -t ${MAIN_REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH} \
+     -t ${MAIN_REGISTRY_WITH_USERNAME}/${PKG_NAME}:${MICROARCH}-with-events-handlers-exec \
      --build-arg=MICROARCH_LEVEL="${LEVEL_MICROARCH}" \
      --build-arg=BINHOST_URI="${URI_BINHOST}" \
 
