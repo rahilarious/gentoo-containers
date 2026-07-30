@@ -60,8 +60,9 @@ if [ -f /etc/portage/repos.conf ]; then
     rm -v /etc/portage/repos.conf
 fi
 
-echo '#####        Adding hardened profile      ######'
-echo '../../../../../../features/hardened/amd64/no-multilib' | tee -a /var/db/repos/gentoo/profiles/default/linux/amd64/23.0/no-multilib/systemd/parent
+echo '#####        setting profile      ######'
+eselect profile set default/linux/amd64/23.0/no-multilib/hardened/systemd
+eselect profile list
 
 echo '#######      Update portage & toolchain if necessary       ######'
 emerge -v --quiet-build -gkb1u sys-apps/portage
