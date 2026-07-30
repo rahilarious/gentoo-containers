@@ -91,6 +91,7 @@ sed -i -e '/virtualization_type/d' /tmp/ansible-homelab/playbooks/set_facts.yml
 
 cat <<-EOF | tee -a /tmp/ansible-homelab/host_vars/currenthost.yml
 	base_packages:
+	  - app-portage/gentoolkit
 	  - app-editors/mg
 	  - app-editors/nano
 	  - app-eselect/eselect-repository

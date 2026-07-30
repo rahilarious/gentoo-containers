@@ -28,8 +28,7 @@ wait_for_5() {
 #### CODE
 cd ${CURRENT_DIR}
 
-[[ -z {STAGE3_LATEST_BUILD_ID} ]] && \
-    STAGE3_LATEST_BUILD_ID=$(curl -sL https://bouncer.gentoo.org/fetch/root/all/releases/amd64//autobuilds/latest-stage3-amd64-nomultilib-systemd.txt | gpg -d 2>/dev/null | tail -n1 | awk -F\/ '{print $1;}')
+[[ -z ${STAGE3_LATEST_BUILD_ID} ]] && STAGE3_LATEST_BUILD_ID=$(curl -sL https://bouncer.gentoo.org/fetch/root/all/releases/amd64//autobuilds/latest-stage3-amd64-nomultilib-systemd.txt | gpg -d 2>/dev/null | tail -n1 | awk -F\/ '{print $1;}')
 [[ -f stage3-amd64-nomultilib-systemd-"${STAGE3_LATEST_BUILD_ID}".tar ]] || {
     wget2 -c https://bouncer.gentoo.org/fetch/root/all/releases/amd64/autobuilds/"${STAGE3_LATEST_BUILD_ID}"/stage3-amd64-nomultilib-systemd-"${STAGE3_LATEST_BUILD_ID}".tar.xz{,.asc}
     gpg --verify stage3-amd64-nomultilib-systemd-"${STAGE3_LATEST_BUILD_ID}".tar.xz.asc
@@ -48,6 +47,7 @@ doas buildah from \
     -v ${HOST_GURU_REPO_DIR}:/var/db/repos/guru \
     -v ${HOST_DIST_DIR}:/var/cache/distfiles \
     -v ${HOST_BINPKGS_DIR}:/var/cache/binpkgs \
+    -v ${HOST_BINHOST_DIR}:/var/cache/binhost \
     -v $(pwd)/build_script.sh:/build_script.sh \
     docker://localhost/gentoo/stage3:nomultilib-systemd
 
