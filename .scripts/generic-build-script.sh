@@ -12,7 +12,7 @@ PARENT_DIR=$(dirname ${CURRENT_DIR})
 source ${PARENT_DIR}/config.env
 source ${CURRENT_DIR}/config.env
 PKG_NAME=$(basename ${CURRENT_DIR})
-MICROARCH=$(cd ${CURRENT_DIR} && git branch --show-current)
+MICROARCH=$(cd ${CURRENT_DIR} && git branch --show-current | cut -d - -f 1-3)
 LEVEL_MICROARCH=$(echo ${MICROARCH} | cut -d- -f3)
 
 #### CODE
