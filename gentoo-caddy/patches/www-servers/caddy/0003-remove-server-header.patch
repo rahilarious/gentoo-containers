@@ -1,15 +1,12 @@
 diff --git a/modules/caddyhttp/server.go b/modules/caddyhttp/server.go
-index 0479af8..a5030c8 100644
+index 0479af8..795f4dd 100644
 --- a/modules/caddyhttp/server.go
 +++ b/modules/caddyhttp/server.go
-@@ -328,10 +328,6 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
- 		}
- 	}
+@@ -330,7 +330,6 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
  
--	// set the Server header
--	h := w.Header()
+ 	// set the Server header
+ 	h := w.Header()
 -	h["Server"] = serverHeader
--
+ 
  	// advertise HTTP/3, if enabled
  	if s.h3server != nil && r.ProtoMajor < 3 {
- 		if err := s.h3server.SetQUICHeaders(h); err != nil {
