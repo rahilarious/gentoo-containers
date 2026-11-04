@@ -24,10 +24,10 @@ RUN \
 	EOT
     fi
    
-    emerge -vbgk --with-bdeps=y -o --quiet-build ${PKG_NAME}
-    emerge -vBgk --with-bdeps=y --quiet-build ${PKG_NAME}
-    emerge -c
-    emerge -vKg --with-bdeps=n --quiet-build ${PKG_NAME}
+    emerge -vbgk --with-bdeps=y -o --quiet-build ${PKG_NAME} -X glibc
+    emerge -vBgk --with-bdeps=y --quiet-build ${PKG_NAME} -X glibc 
+    emerge -c 
+    emerge -vKg --with-bdeps=n --quiet-build ${PKG_NAME} -X glibc
     mkdir -pv /opt/adguardhome/{conf,work}
     chown -R nobody: /opt/adguardhome
     chown nobody:nogroup /usr/bin/AdGuardHome
