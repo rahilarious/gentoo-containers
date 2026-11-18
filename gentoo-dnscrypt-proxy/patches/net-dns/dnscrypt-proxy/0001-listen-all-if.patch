@@ -1,0 +1,20 @@
+--- a/dnscrypt-proxy/example-dnscrypt-proxy.toml
++++ b/dnscrypt-proxy/example-dnscrypt-proxy.toml
+@@ -37,7 +37,7 @@
+ ## To listen to all IPv4 addresses, use `listen_addresses = ['0.0.0.0:53']`
+ ## To listen to all IPv4+IPv6 addresses, use `listen_addresses = ['[::]:53']`
+ 
+-listen_addresses = ['127.0.0.1:53']
++listen_addresses = ['0.0.0.0:53']
+ 
+ 
+ ## Maximum number of simultaneous client connections to accept
+@@ -1035,7 +1035,7 @@
+ enabled = false
+ 
+ ## Listen address for the monitoring UI
+-listen_address = "127.0.0.1:8080"
++listen_address = "0.0.0.0:8080"
+ 
+ ## Optional username and password for basic authentication
+ ## To disable authentication, set username to an empty string: username = ""
